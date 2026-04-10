@@ -43,7 +43,7 @@ namespace id3v2 {
 			Frame(const Frame & other);
 			virtual ~Frame();
 
-			virtual Frame & operator=(const Frame & other);
+			Frame & operator=(const Frame & other);
 
 			virtual bool get_frame(std::ifstream & stream);
 

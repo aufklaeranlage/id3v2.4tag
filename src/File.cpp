@@ -1,9 +1,10 @@
 #include "File.hpp"
 
+#include "UFID.hpp"
+#include "TIF.hpp"
 #include "AENC.hpp"
 #include "APIC.hpp"
 #include "GEOB.hpp"
-#include "TextInfoFrame.hpp"
 
 #include <iostream>
 
@@ -80,11 +81,13 @@ bool id3v2::File::read_file(const std::string & filename) {
 		pos += 10;
 
 		id3v2::Frame *	frame;
-		if (id[0] == 'T' &&
-				(id[1] >= '0' && id[1] <= 'Z' && id[1] != 'X') &&
-				(id[2] >= '0' && id[2] <= 'Z' && id[2] != 'X') &&
-				(id[3] >= '0' && id[3] <= 'Z' && id[3] != 'X')) {
-			frame = new id3v2::TIFrame();
+		if (strcmp(id, "UFID") == 0) {
+			frame = new id3v2::UFID();
+		} else if (id[0] == 'T' &&
+				(id[1] >= '0' && id[1] <= 'Z') &&
+				(id[2] >= '0' && id[2] <= 'Z') &&
+				(id[3] >= '0' && id[3] <= 'Z')) {
+			frame = new id3v2::TIF();
 		} else if (strcmp(id, "AENC") == 0) {
 			frame = new id3v2::AENC();
 		} else if (strcmp(id, "APIC") == 0) {

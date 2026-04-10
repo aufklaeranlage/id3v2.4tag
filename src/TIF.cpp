@@ -1,4 +1,4 @@
-#include "TextInfoFrame.hpp"
+#include "TIF.hpp"
 
 #include "Frame.hpp"
 
@@ -6,27 +6,27 @@
 
 #include <cstdlib>
 
-id3v2::TIFrame::TIFrame() : Frame() {
+id3v2::TIF::TIF() : Frame() {
 	memcpy(id, "T000\0", 5);
 	strs = NULL;
 	nstrs = 0;
 }
 
-id3v2::TIFrame::TIFrame(const id3v2::TIFrame & other) : id3v2::Frame(other) {
+id3v2::TIF::TIF(const id3v2::TIF & other) : id3v2::Frame(other) {
 	strs = NULL;
 	nstrs = 0;
 	*this = other;
 }
 
-id3v2::TIFrame::TIFrame(std::ifstream & stream) {
+id3v2::TIF::TIF(std::ifstream & stream) {
 	get_frame(stream);
 }
 
-id3v2::TIFrame::~TIFrame() {
+id3v2::TIF::~TIF() {
 	free(strs);
 }
 
-id3v2::TIFrame & id3v2::TIFrame::operator=(const id3v2::TIFrame & other) {
+id3v2::TIF & id3v2::TIF::operator=(const id3v2::TIF & other) {
 	if (this == &other)
 		return (*this);
 	id3v2::Frame::operator=(other);
@@ -48,7 +48,7 @@ id3v2::TIFrame & id3v2::TIFrame::operator=(const id3v2::TIFrame & other) {
 	return (*this);
 }
 
-bool id3v2::TIFrame::get_frame(std::ifstream & stream) {
+bool id3v2::TIF::get_frame(std::ifstream & stream) {
 	id3v2::Frame::get_frame(stream);
 	if (state == id3v2::bad || state == id3v2::unset)
 		return (false);
@@ -77,12 +77,18 @@ bool id3v2::TIFrame::get_frame(std::ifstream & stream) {
 	return (true);
 }
 
-std::ostream & id3v2::TIFrame::insert(std::ostream & out) const {
-	out << "id: " << id << ", strs { ";
-	for (uint32_t i = 0; i < nstrs; i++) {
+std::ostream & id3v2::TIF::insert(std::ostream & out) const {
+	out << "id: " << id;
+	uint8_t desc_offset = 0;
+	if (strcmp(id, "TXXX") == 0) {
+		out << ", desc: " << strs[0];
+		desc_offset = 1;
+	}
+	out << ", strs { ";
+	for (uint32_t i = 0; i + desc_offset < nstrs; i++) {
 		if (i != 0)
 			out << ", ";
-		out << strs[i];
+		out << strs[desc_offset + i];
 	}
 	out << " }";
 	return (out);

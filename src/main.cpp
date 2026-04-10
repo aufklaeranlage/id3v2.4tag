@@ -1,6 +1,6 @@
 #include "File.hpp"
 
-#include "TextInfoFrame.hpp"
+#include "TIF.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -15,11 +15,7 @@ int main(int ac, char *av[]) {
 		const std::vector<id3v2::Frame *> & frames = file.get_frames();
 		for (std::vector<id3v2::Frame *>::const_iterator it = frames.begin();
 				it != frames.end(); it++) {
-			if ((*it)->id[0] == 'T' && strcmp((*it)->id + 1, "XXX")) {
-				id3v2::TIFrame frame = id3v2::TIFrame(*dynamic_cast<id3v2::TIFrame *>(*it));
-				std::cout << frame << std::endl;
-			} else
-				std::cout << **it << std::endl;
+			std::cout << **it << std::endl;
 		}
 	}
 

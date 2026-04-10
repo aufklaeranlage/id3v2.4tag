@@ -18,10 +18,11 @@ SRCS	+= ExtendedHeader.cpp
 SRCS	+= Footer.cpp
 SRCS	+= Frame.cpp
 
+SRCS	+= UFID.cpp
+SRCS	+= TIF.cpp
 SRCS	+= AENC.cpp
 SRCS	+= APIC.cpp
 SRCS	+= GEOB.cpp
-SRCS	+= TextInfoFrame.cpp
 
 SRCS	+= File.cpp
 
