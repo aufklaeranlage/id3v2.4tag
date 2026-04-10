@@ -7,6 +7,7 @@
 #include <iostream>
 
 namespace id3v2 {
+	//	<Header for 'Audio encryption', ID: "AENC">
 	//	Owner identifier   <text string> $00
 	//	Preview start      $xx xx
 	//	Preview length     $xx xx

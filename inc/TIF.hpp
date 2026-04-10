@@ -11,6 +11,11 @@ namespace id3v2 {
 	//	excluding "TXXX" described in 4.2.6.>
 	//	Text encoding                $xx
 	//	Information                  <text string(s) according to encoding>
+	
+	//	<Header for 'User defined text information frame', ID: "TXXX">
+	//	Text encoding     $xx
+	//	Description       <text string according to encoding> $00 (00)
+	//	Value             <text string according to encoding>
 	class TIF : public Frame {
 		public:
 			id3v2::txtenc	enc;

@@ -20,6 +20,7 @@ SRCS	+= Frame.cpp
 
 SRCS	+= UFID.cpp
 SRCS	+= TIF.cpp
+SRCS	+= WIF.cpp
 SRCS	+= AENC.cpp
 SRCS	+= APIC.cpp
 SRCS	+= GEOB.cpp
@@ -54,13 +55,13 @@ endif
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CXX) $(LDFLAGS) -o $(NAME) $^
+$(NAME): $(ODIR) $(OBJS)
+	$(CXX) $(LDFLAGS) -o $(NAME) $(OBJS)
 
 $(ODIR):
 	$(MKDIR) $(ODIR)
 
-$(ODIR)%.o: %.cpp $(ODIR)
+$(ODIR)%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $< -c -o $@
 
 -include $(DEPS)
