@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "utils.h"
 
@@ -66,13 +65,13 @@ void frame_del(struct frame *f)
 b8 frame_read(struct frame *f, FILE *stream)
 {
 	frame_clear(f);
-	u8 headerbuf[10];
+	char headerbuf[10];
 
 	u64 cur = ftell(stream);
 
 	f->state = bad;
 	f->pos = cur;
-	if (fread(headerbuf, sizeof(u8), 10, stream) < 0)
+	if (fread(headerbuf, sizeof(char), 10, stream) < 0)
 		return false;
 	f->size = read_synchsafe_u32((u8 *)headerbuf);
 

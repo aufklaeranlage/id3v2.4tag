@@ -15,6 +15,7 @@ vpath %.c $(SDIR)
 SRCS	+= utils.c
 
 SRCS	+= frame.c
+SRCS	+= header.c
 
 OBJS	:= $(SRCS:.c=.o)
 OBJS	:= $(addprefix $(ODIR), $(OBJS))

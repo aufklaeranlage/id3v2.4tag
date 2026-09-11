@@ -2,8 +2,9 @@
 # define ID3V240FRAME_H
 
 #include "typedef.h"
-
 #include "id3v240.h"
+
+#include <stdio.h>
 
 #define F_TAGPRES 128		// 0b01000000
 #define F_FILPRES 64		// 0b00100000
@@ -77,5 +78,52 @@ struct frame	*frame_clear(struct frame *f);
  *	@param A pointer to the `struct frame` to be freed.
  */
 void					frame_del(struct frame *f);
+
+/** @brief Reads the data from `stream` into the `struct frame *f`.
+ *  @return Returns `true` on successfull read; `false` on failure to read a frame
+ */
+b8            frame_read(struct frame *f, FILE *stream);
+
+/** @brief Writes the information from `struct frame *f` into the stream `stream`.
+ *  @return Returns the stream.
+ *  
+ *  The data written to the stream is not the actual frame data but the human
+ *    readable representation of it.
+ *
+ *  The data fields shown are:
+ *    - The frames id (4 Characters)
+ *    - The frames data (byte string until a '\0' character is encountered,
+ *
+ *  The data is not cleanedup and can mess with the output since a frames data can
+ *    be binary data.
+ */
+FILE          *frame_stream(FILE *stream, const struct frame *f);
+
+/** @brief Writes the information from `struct frame *f` into the stream `stream`.
+ *  @return Returns the stream.
+ *  
+ *  The data written to the stream is not the actual frame data but the human
+ *    readable representation of it.
+ *
+ *  The data fields shown are:
+ *    - The frames id (4 Characters)
+ *    - The frames position in the file.
+ *    - The size of the frames data in bytes.
+ *    - The frames status:
+ *      - Whether the tag is supposed to be preserved (True/False)
+ *      - Whether the file is supposed to be preserved (True/False)
+ *      - Whether the frame is read only (True/False)
+ *    - The frames format:
+ *      - Whether the frame is grouped (True/False)
+ *      - Whether the frame is compressed (True/False)
+ *      - Whether the frame is encrypted (True/False)
+ *      - Whether the frame is unsynchronisation (True/False)
+ *      - Whether the frames length is indicated (True/False)
+ *    - The frames data (byte string until a '\0' character is encountered,
+ *
+ *  The data is not cleanedup and can mess with the output since a frames data can
+ *    be binary data.
+ */
+FILE          *frame_stream_full(FILE *stream, const struct frame *f);
 
 #endif
