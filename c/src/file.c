@@ -119,12 +119,13 @@ b8 file_read(struct file *f, const char *filename)
     }
     memcpy(frame->id, id, 5);
     ++f->nframes;
-    struct frame  *re_frames = realloc(f->frames, sizeof(*f->frames) * f->nframes);
+    struct frame  **re_frames = realloc(f->frames, sizeof(*f->frames) * f->nframes);
     if (re_frames == NULL) {
       frame_del(frame);
       fclose(stream);
       return false;
     }
+    f->frames = re_frames;
     pos += frame->size;
     f->frames[f->nframes - 1] = frame;
   }

@@ -1,7 +1,12 @@
-objs/
-*/objs/
+obj/
+*/obj/
+
+tagger
+*/tagger
 
 compile_flags.txt
 */compile_flags.txt
 
 c/tests/build
+
+*.mp3

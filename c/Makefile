@@ -16,6 +16,10 @@ SRCS	+= utils.c
 
 SRCS	+= frame.c
 SRCS	+= header.c
+SRCS	+= ext_header.c
+SRCS	+= file.c
+
+SRCS	+= main.c
 
 OBJS	:= $(SRCS:.c=.o)
 OBJS	:= $(addprefix $(ODIR), $(OBJS))
