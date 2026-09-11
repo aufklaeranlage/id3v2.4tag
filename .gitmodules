@@ -1,0 +1,3 @@
+[submodule "c/et"]
+	path = c/et
+	url = https://github.com/QuantumLeaps/Embedded-Test.git
