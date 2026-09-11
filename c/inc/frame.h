@@ -59,14 +59,14 @@ struct frame	*frame_new();
  *	@param `src` The source `struct frame` who's data will be copied into
  *		`dest`.
  */
-struct frame	*frame_cpy(struct frame *dest, struct frame *src);
+struct frame	*frame_cpy(struct frame *dest, const struct frame *src);
 
 /**	@brief Allocates a new `struct frame` and copies the data from `src` into
  *		it.
  *	@return Returns the new `struct frame` on success; Returns `NULL` on failure
  *		to allocate memory for the `struct frame` or it's data.
  */
-struct frame	*frame_clone(struct frame *src);
+struct frame	*frame_clone(const struct frame *src);
 
 /**	@brief Frees the internal memory of the given `struct frame` and
  *		re-initializes it. 

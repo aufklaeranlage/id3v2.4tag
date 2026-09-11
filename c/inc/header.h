@@ -33,7 +33,7 @@ struct header {
  *
  *	`NULL` pointer guarded. Will return `NULL` if given `NULL`.
  */
-struct header	*init_header(struct header *f);
+struct header	*header_init(struct header *f);
 
 /**	@brief Allocated a `struct header` and initializes it.
  *	@return Returns a pointer to the initialized `struct header` on success;
@@ -47,14 +47,14 @@ struct header	*header_new();
  *	@param `src` The source `struct header` who's data will be copied into
  *		`dest`.
  */
-struct header	*header_cpy(struct header *dest, struct header *src);
+struct header	*header_cpy(struct header *dest, const struct header *src);
 
 /**	@brief Allocates a new `struct header` and copies the data from `src` into
  *		it.
  *	@return Returns the new `struct header` on success; Returns `NULL` on failure
  *		to allocate memory for the `struct header` or it's data.
  */
-struct header	*header_clone(struct header *src);
+struct header	*header_clone(const struct header *src);
 
 /**	@brief Reinitializes a `struct header`
  *	@return Returns the re-initialized `struct header`.
@@ -65,5 +65,42 @@ struct header	*header_clear(struct header *f);
  *	@param A pointer to the `struct header` to be freed.
  */
 void					header_del(struct header *f);
+
+/** @brief Reads the data from `stream` into the `struct frame *f`.
+ *  @return Returns `true` on successfull read; `false` on failure to read a frame
+ */
+b8 header_read(FILE *stream, struct header *h);
+
+/** @brief Writes the information from `struct header *h` into the stream `stream`.
+ *  @return Returns the stream.
+ *  
+ *  The data written to the stream is not the actual header data but the human
+ *    readable representation of it.
+ *
+ *  The data shown is:
+ *    - The version string in the forma "ID3v{major}.{revision}"
+ *    - The size of the header in bytes
+ */
+FILE *header_stream(FILE *stream, const struct header *h);
+
+/** @brief Writes the information from `struct header *h` into the stream `stream`.
+ *  @return Returns the stream.
+ *  
+ *  The data written to the stream is not the actual header data but the human
+ *    readable representation of it.
+ *
+ *  The data fields shown are:
+ *    - The version:
+ *      - The major part
+ *      - The minor part
+ *    - The header flags:
+ *      - Whether the frames are unsynchronized (True/False)
+ *      - Whether the header is extended (True/False)
+ *      - Whether experimental features are used (True/False)
+ *      - Whether a footer is present (True/False)
+ *      - Whether the frames are uncleared (True/False)
+ *    - The size of the header in bytes
+ */
+FILE *header_stream_full(FILE *stream, const struct header *h);
 
 #endif

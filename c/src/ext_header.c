@@ -179,16 +179,16 @@ static const char *imgresstr(enum res_img rt) {
   return strs[rt];
 };
 
-FILE *ext_header_stream(FILE *stream, struct ext_header *eh)
+FILE *ext_header_stream(FILE *stream, const struct ext_header *eh)
 {
   fprintf(stream, "update: %s, crc: %s, restrictions: %s",
       boolstr(eh->flags.update), boolstr(eh->flags.crc), boolstr(eh->flags.restriction));
   return stream;
 }
 
-FILE *ext_header_stream_full(FILE *stream, struct ext_header *eh)
+FILE *ext_header_stream_full(FILE *stream, const struct ext_header *eh)
 {
-  fprintf(stream, "update: %s, crc: %s { %ld }, restrictions: %s { tag size: }",
-      boolstr(eh->flags.update), boolstr(eh->flags.crc), eh->crc, boolstr(eh->flags.restriction));
+  fprintf(stream, "update: %s, crc: %s { %ld }, restrictions: %s { tag size: %s, txt encoding: %s, txt size: %s, img encoding: %s, img size: %s }",
+      boolstr(eh->flags.update), boolstr(eh->flags.crc), eh->crc, boolstr(eh->flags.restriction), tagresstr(eh->restriction.tag_size), boolstr(eh->restriction.txt_encode), txtresstr(eh->restriction.txt_size), boolstr(eh->restriction.img_encode), imgresstr(eh->restriction.img_size));
   return stream;
 }

@@ -20,13 +20,13 @@ struct header *header_new()
 	return header_init(new);
 }
 
-struct header *header_cpy(struct header *dest, struct header *src)
+struct header *header_cpy(struct header *dest, const struct header *src)
 {
   memcpy(dest, src, sizeof(*src));
   return dest;
 }
 
-struct header *header_clone(struct header *src)
+struct header *header_clone(const struct header *src)
 {
   struct header *dest = malloc(sizeof(*dest));
   if (dest == NULL)
@@ -72,15 +72,15 @@ b8 header_read(FILE *stream, struct header *h)
   return true;
 }
 
-FILE *header_stream(FILE *stream, struct header *h)
+FILE *header_stream(FILE *stream, const struct header *h)
 {
-  fprintf(stream, "ID3v.%d.%d, size: %d", h->version.major, h->version.minor, h->size);
+  fprintf(stream, "ID3v%d.%d, size: %d", h->version.major, h->version.minor, h->size);
   return stream;
 }
 
-FILE *header_stream_full(FILE *stream, struct header *h)
+FILE *header_stream_full(FILE *stream, const struct header *h)
 {
-  fprintf(stream, "version { majro: %d, minor: %d}, flags { unsynchronisation: %s, extended: %s, experimental: %s, footer: %s, uncleared: %s },size: %d",
+  fprintf(stream, "version { major: %d, minor: %d}, flags { unsynchronisation: %s, extended: %s, experimental: %s, footer: %s, uncleared: %s },size: %d",
       h->version.major, h->version.minor, boolstr(h->flags.unsynchronisation), boolstr(h->flags.extended), boolstr(h->flags.experimental), boolstr(h->flags.footer), boolstr(h->flags.uncleared), h->size);
   return stream;
 }

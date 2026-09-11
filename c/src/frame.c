@@ -23,7 +23,7 @@ struct frame *frame_new()
 	return init_frame(f);
 }
 
-struct frame *frame_cpy(struct frame *dest, struct frame *src)
+struct frame *frame_cpy(struct frame *dest, const struct frame *src)
 {
 	char	*data;
 	data = malloc(sizeof(dest->data) * (src->size + 1));
@@ -36,7 +36,7 @@ struct frame *frame_cpy(struct frame *dest, struct frame *src)
 	return dest;
 }
 
-struct frame *frame_clone(struct frame *src)
+struct frame *frame_clone(const struct frame *src)
 {
 	struct frame	*dest;
 	dest = malloc(sizeof(*dest));

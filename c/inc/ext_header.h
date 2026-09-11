@@ -70,4 +70,78 @@ struct ext_header {
   } restriction;
 };
 
+/**	@brief Initializes a `struct ext_header`. @return Returns a pointer to the initialized `struct ext_header`.
+ *	@param `f` A pointer to the `struct ext_header` to be initialized.
+ *
+ *	`NULL` pointer guarded. Will return `NULL` if given `NULL`.
+ */
+struct ext_header	*ext_header_init(struct ext_header *f);
+
+/**	@brief Allocated a `struct ext_header` and initializes it.
+ *	@return Returns a pointer to the initialized `struct ext_header` on success;
+ *		Retruns `NULL` on failure.
+ */ 
+struct ext_header	*ext_header_new();
+
+/**	@brief Makes `dest` a copy of `src`.
+ *	@return Returns a pointer to `dest`.
+ *	@param `dest` The destination `struct ext_header` to become a copy of `src`.
+ *	@param `src` The source `struct ext_header` who's data will be copied into
+ *		`dest`.
+ */
+struct ext_header	*ext_header_cpy(struct ext_header *dest, const struct ext_header *src);
+
+/**	@brief Allocates a new `struct ext_header` and copies the data from `src` into
+ *		it.
+ *	@return Returns the new `struct ext_header` on success; Returns `NULL` on failure
+ *		to allocate memory for the `struct ext_header` or it's data.
+ */
+struct ext_header	*ext_header_clone(const struct ext_header *src);
+
+/**	@brief Reinitializes a `struct ext_header`
+ *	@return Returns the re-initialized `struct ext_header`.
+ */
+struct ext_header	*ext_header_clear(struct ext_header *f);
+
+/**	@brief Frees the memory used by a `struct ext_header` and it's internal data.
+ *	@param A pointer to the `struct ext_header` to be freed.
+ */
+void					ext_header_del(struct ext_header *f);
+
+/** @brief Reads the data from `stream` into the `struct frame *f`.
+ *  @return Returns `true` on successfull read; `false` on failure to read a frame
+ */
+b8 ext_header_read(FILE *stream, struct ext_header *h);
+
+/** @brief Writes the information from `struct ext_header *h` into the stream `stream`.
+ *  @return Returns the stream.
+ *  The data written to the stream is not the actual extended header data but the human
+ *    readable representation of it.
+ *
+ *  The data shown is:
+ *    - Whether the frames should be updated (True/False)
+ *    - Whether a CRC is present (True/False)
+ *    - Whether special restrictions are given (True/False)
+ */
+FILE *ext_header_stream(FILE *stream, const struct ext_header *h);
+
+/** @brief Writes the information from `struct ext_header *h` into the stream `stream`.
+ *  @return Returns the stream.
+ *  
+ *  The data written to the stream is not the actual extnded header data but the human
+ *    readable representation of it.
+ *
+ *  The data fields shown are:
+ *    - Whether the frames should be updated (True/False)
+ *    - Whether a CRC is present (True/False)
+ *      - The CRC
+ *    - Whether special restrictions are given (True/False)
+ *      - The tag size limit
+ *      - Whether text restrictions are given (True/False)
+ *      - The text size limit
+ *      - Whether image restrictions are given (True/False)
+ *      - The image size limit
+ */
+FILE *ext_header_stream_full(FILE *stream, const struct ext_header *h);
+
 #endif
