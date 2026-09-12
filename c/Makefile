@@ -28,8 +28,8 @@ DEPS	:= $(OBJS:.o=.d)
 
 # * COMMANDS ***************************************************************** #
 
-CC		:= cc
-LD		:= cc
+CC		:= gcc
+LD		:= gcc
 RM		:= rm -rf
 MKDIR	:= mkdir -p
 
@@ -41,7 +41,7 @@ CPPFLAGS	:= -I $(IDIR)
 ifdef DEBUG
 	CFLAGS	+= -g3
 else
-	CFLAGS	+= -O3
+	# CFLAGS	+= -O3
 endif
 
 # * RULES ******************************************************************** #

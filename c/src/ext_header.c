@@ -50,7 +50,7 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
   u64   cur = ftell(stream);
 
   eh->state = bad;
-  if (fread(buf, sizeof(char), 6, stream) < 0) {
+  if (fread(buf, sizeof(char), 6, stream) < 6) {
     fseek(stream, cur, SEEK_SET);
     return false;
   }
@@ -77,7 +77,7 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
   }
 
   char flagbuf[10];
-  if (fread(flagbuf, sizeof(char), eh->size - 6, stream) < 0) {
+  if (fread(flagbuf, sizeof(char), eh->size - 6, stream) < eh->size - 6) {
     fseek(stream, cur, SEEK_SET);
     return false;
   }

@@ -45,7 +45,7 @@ struct frame *frame_clone(const struct frame *src)
 	dest->data = NULL;
 	if (frame_cpy(dest, src) == NULL) {
 		free(dest);
-		return dest;
+		return NULL;
 	}
 	return dest;
 }
@@ -65,28 +65,32 @@ void frame_del(struct frame *f)
 b8 frame_read(struct frame *f, FILE *stream)
 {
 	frame_clear(f);
-	char headerbuf[10];
+	char headerbuf[7];
 
 	u64 cur = ftell(stream);
 
 	f->state = bad;
 	f->pos = cur;
-	if (fread(headerbuf, sizeof(char), 10, stream) < 0)
+	if (fread(f->id, sizeof(char), 4, stream) < 4) {
+		fclose(stream);
+		return false;
+	}
+	if (fread(headerbuf, sizeof(char), 6, stream) < 6)
 		return false;
 	f->size = read_synchsafe_u32((u8 *)headerbuf);
 
-	f->status.preserve_tag = headerbuf[8] & F_TAGPRES;
-	f->status.preserve_file = headerbuf[8] & F_FILPRES;
-	f->status.read_only = headerbuf[8] & F_RDONLY;
+	f->status.preserve_tag = headerbuf[4] & F_TAGPRES;
+	f->status.preserve_file = headerbuf[4] & F_FILPRES;
+	f->status.read_only = headerbuf[4] & F_RDONLY;
 
-	f->format.grouped = headerbuf[9] & F_GROUPED;
-	f->format.compressed = headerbuf[9] & F_COMPRES;
-	f->format.encrypted = headerbuf[9] & F_ENCRYPT;
-	f->format.unsynchronisation = headerbuf[9] & F_UNSYNC;
-	f->format.length_indicated = headerbuf[9] & F_LENINDI;
+	f->format.grouped = headerbuf[5] & F_GROUPED;
+	f->format.compressed = headerbuf[5] & F_COMPRES;
+	f->format.encrypted = headerbuf[5] & F_ENCRYPT;
+	f->format.unsynchronisation = headerbuf[5] & F_UNSYNC;
+	f->format.length_indicated = headerbuf[5] & F_LENINDI;
 	
 	f->data = malloc(sizeof(*f->data) * (f->size + 1));
-	if (f->data == NULL || fread(f->data, sizeof(char), f->size, stream) < 0) {
+	if (f->data == NULL || fread(f->data, sizeof(char), f->size, stream) < f->size) {
 		fseek(stream, cur, SEEK_SET);
 		return false;
 	}

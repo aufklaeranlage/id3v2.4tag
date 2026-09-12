@@ -100,14 +100,7 @@ b8 file_read(struct file *f, const char *filename)
   // u32 size = f->header.state == unset ? f->footer.size : f->header.size;
   u32 pos = 0;
   while (pos < size) {
-    char  id[5];
-    id[4] = '\0';
     u64 cur = ftell(stream);
-    if (fread(id, sizeof(char), 4, stream) < 0) {
-      fclose(stream);
-      return false;
-    }
-    pos += 10;
 
     struct frame *frame = frame_new();
     if (frame == NULL)
@@ -117,7 +110,6 @@ b8 file_read(struct file *f, const char *filename)
       frame_del(frame);
       break ;
     }
-    memcpy(frame->id, id, 5);
     ++f->nframes;
     struct frame  **re_frames = realloc(f->frames, sizeof(*f->frames) * f->nframes);
     if (re_frames == NULL) {
@@ -126,6 +118,7 @@ b8 file_read(struct file *f, const char *filename)
       return false;
     }
     f->frames = re_frames;
+    pos += 10;
     pos += frame->size;
     f->frames[f->nframes - 1] = frame;
   }
@@ -140,11 +133,13 @@ FILE *file_stream(FILE *stream, const struct file *f)
   fwrite("Header:\n", sizeof(char), 8, stream);
   fwrite("\t", sizeof(char), 1, stream);
   header_stream(stream, &f->header);
+  fwrite("\n", sizeof(char), 1, stream);
 
   if (f->header.flags.extended) {
     fwrite("Extended Header:\n", sizeof(char), 17, stream);
     fwrite("\t", sizeof(char), 1, stream);
     ext_header_stream(stream, &f->ext_header);
+    fwrite("\n", sizeof(char), 1, stream);
   }
 
   if (f->nframes) {
@@ -164,11 +159,13 @@ FILE *file_stream_full(FILE *stream, const struct file *f)
   fwrite("Header:\n", sizeof(char), 8, stream);
   fwrite("\t", sizeof(char), 1, stream);
   header_stream_full(stream, &f->header);
+  fwrite("\n", sizeof(char), 1, stream);
 
   if (f->header.flags.extended) {
     fwrite("Extended Header:\n", sizeof(char), 17, stream);
     fwrite("\t", sizeof(char), 1, stream);
     ext_header_stream_full(stream, &f->ext_header);
+    fwrite("\n", sizeof(char), 1, stream);
   }
 
   if (f->nframes) {

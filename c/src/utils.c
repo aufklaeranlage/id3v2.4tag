@@ -2,7 +2,7 @@
 
 const u8 *boolstr(b8 val)
 {
-	const static u8	strs[2][6] = {
+	static const u8	strs[2][6] = {
 		"True",
 		"False",
 	};
