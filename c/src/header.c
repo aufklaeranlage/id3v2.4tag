@@ -7,17 +7,17 @@
 
 struct header *header_init(struct header *h)
 {
-	if (h == NULL)
-		return NULL;
-	memset(h, 0, sizeof(*h));
-	h->state = unset;
-	return h;
+  if (h == NULL)
+    return NULL;
+  memset(h, 0, sizeof(*h));
+  h->state = unset;
+  return h;
 }
 
 struct header *header_new()
 {
-	struct header	*new = malloc(sizeof(*new));
-	return header_init(new);
+  struct header *new = malloc(sizeof(*new));
+  return header_init(new);
 }
 
 struct header *header_cpy(struct header *dest, const struct header *src)
@@ -67,7 +67,7 @@ b8 header_read(FILE *stream, struct header *h)
   h->flags.footer = buf[5] & F_FOOTR;
   h->flags.uncleared = buf[5] & F_UNCLR;
 
-  h->size = read_synchsafe_u32((u8 *)buf + 6);
+  h->size = read_synchsafe_u28((u8 *)buf + 6);
 
   return true;
 }

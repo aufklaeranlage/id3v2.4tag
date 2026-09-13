@@ -55,7 +55,7 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
     return false;
   }
 
-  eh->size = read_synchsafe_u32((u8 *)buf);
+  eh->size = read_synchsafe_u28((u8 *)buf);
   if (eh->size < 6) {
     fseek(stream, cur, SEEK_SET);
     return false;
@@ -88,53 +88,53 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
     return false;
   }
 
-	if (eh->flags.crc) {
-		if (flagbuf[pos++] != 5) {
+  if (eh->flags.crc) {
+    if (flagbuf[pos++] != 5) {
       fseek(stream, cur, SEEK_SET);
       return false;
-		}
-		eh->crc = read_synchsafe_u35((u8 *)(flagbuf + pos));
-		pos += 5;
-	}
+    }
+    eh->crc = read_synchsafe_u35((u8 *)(flagbuf + pos));
+    pos += 5;
+  }
 
-	if (eh->flags.restriction) {
-		if (flagbuf[pos++] != 1) {
+  if (eh->flags.restriction) {
+    if (flagbuf[pos++] != 1) {
       fseek(stream, cur, SEEK_SET);
       return false;
-		}
-		switch (flagbuf[pos] & M_RES_TAGSIZE) {
-			case F_RES_TAG1M:
-				eh->restriction.tag_size = max128x1m; break;
-			case F_RES_TAG128K:
-				eh->restriction.tag_size = max64x128k; break;
-			case F_RES_TAG40K:
-				eh->restriction.tag_size = max32x40k; break;
-			case F_RES_TAG4K:
-				eh->restriction.tag_size = max32x4k; break;
-		}
-		eh->restriction.txt_encode = flagbuf[pos] & F_RES_TXTENC;
-		switch (flagbuf[pos] & M_RES_TXTSIZE) {
-			case F_RES_TXTNONE:
-				eh->restriction.txt_size = none_txt; break;
-			case F_RES_TXT1024:
-				eh->restriction.txt_size = max1024; break;
-			case F_RES_TXT128:
-				eh->restriction.txt_size = max128; break;
-			case F_RES_TXT30:
-				eh->restriction.txt_size = max30; break;
-		}
-		eh->restriction.img_encode = flagbuf[pos] & F_RES_IMGENC;
-		switch (flagbuf[pos] & M_RES_IMGSIZE) {
-			case F_RES_IMGNONE:
-				eh->restriction.img_size = none_img; break;
-			case F_RES_IMG256:
-				eh->restriction.img_size = max256; break;
-			case F_RES_IMG64:
-				eh->restriction.img_size = max64; break;
-			case F_RES_IMGEX64:
-				eh->restriction.img_size = exact64; break;
-		}
-	}
+    }
+    switch (flagbuf[pos] & M_RES_TAGSIZE) {
+      case F_RES_TAG1M:
+        eh->restriction.tag_size = max128x1m; break;
+      case F_RES_TAG128K:
+        eh->restriction.tag_size = max64x128k; break;
+      case F_RES_TAG40K:
+        eh->restriction.tag_size = max32x40k; break;
+      case F_RES_TAG4K:
+        eh->restriction.tag_size = max32x4k; break;
+    }
+    eh->restriction.txt_encode = flagbuf[pos] & F_RES_TXTENC;
+    switch (flagbuf[pos] & M_RES_TXTSIZE) {
+      case F_RES_TXTNONE:
+        eh->restriction.txt_size = none_txt; break;
+      case F_RES_TXT1024:
+        eh->restriction.txt_size = max1024; break;
+      case F_RES_TXT128:
+        eh->restriction.txt_size = max128; break;
+      case F_RES_TXT30:
+        eh->restriction.txt_size = max30; break;
+    }
+    eh->restriction.img_encode = flagbuf[pos] & F_RES_IMGENC;
+    switch (flagbuf[pos] & M_RES_IMGSIZE) {
+      case F_RES_IMGNONE:
+        eh->restriction.img_size = none_img; break;
+      case F_RES_IMG256:
+        eh->restriction.img_size = max256; break;
+      case F_RES_IMG64:
+        eh->restriction.img_size = max64; break;
+      case F_RES_IMGEX64:
+        eh->restriction.img_size = exact64; break;
+    }
+  }
 
   eh->state = good;
   return true;

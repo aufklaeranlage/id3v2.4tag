@@ -38,8 +38,8 @@ struct file *file_cpy(struct file *dest, const struct file *src)
   dest->nframes = src->nframes;
   dest->name = malloc(sizeof(*dest->name) * strlen(src->name) + 1);
   if (dest->name == NULL) {
-      file_clear(dest);
-      return dest;
+    file_clear(dest);
+    return dest;
   }
   memcpy(dest->name, src->name, strlen(src->name) + 1);
   header_cpy(&dest->header, &src->header);
@@ -178,4 +178,23 @@ FILE *file_stream_full(FILE *stream, const struct file *f)
   }
 
   return stream;
+}
+
+struct frame **file_get_frames(const struct file *f, const char id[4])
+{
+  u32 nframes = 0;
+  for (u32 i = 0; i < f->nframes; i++) {
+    if (memcmp(id, f->frames[i]->id, 4) == 0)
+      ++nframes;
+  }
+  struct frame  **ret = calloc(sizeof(*ret), nframes + 1);
+  if (ret == NULL)
+    return NULL;
+  u32 retpos = 0;
+  for (u32 i = 0; i < f->nframes; i++) {
+    if (memcmp(id, f->frames[i]->id, 4) == 0) {
+      ret[retpos++] = f->frames[i];
+    }
+  }
+  return ret;
 }

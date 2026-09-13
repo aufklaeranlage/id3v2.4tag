@@ -7,17 +7,17 @@
 
 struct footer *footer_init(struct footer *h)
 {
-	if (h == NULL)
-		return NULL;
-	memset(h, 0, sizeof(*h));
-	h->state = unset;
-	return h;
+  if (h == NULL)
+    return NULL;
+  memset(h, 0, sizeof(*h));
+  h->state = unset;
+  return h;
 }
 
 struct footer *footer_new()
 {
-	struct footer	*new = malloc(sizeof(*new));
-	return footer_init(new);
+  struct footer *new = malloc(sizeof(*new));
+  return footer_init(new);
 }
 
 struct footer *footer_cpy(struct footer *dest, const struct footer *src)
@@ -67,7 +67,7 @@ b8 footer_read(FILE *stream, struct footer *h)
   h->flags.footer = buf[5] & F_FOOTR;
   h->flags.uncleared = buf[5] & F_UNCLR;
 
-  h->size = read_synchsafe_u32((u8 *)buf + 6);
+  h->size = read_synchsafe_u28((u8 *)buf + 6);
 
   return true;
 }
