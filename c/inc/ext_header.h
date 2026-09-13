@@ -10,46 +10,34 @@
 #define F_RESTRICT 16 // 0b00010000
 
 #define M_RES_TAGSIZE 192 // 0b11000000
-#define F_RES_TAG1M 0     // 0b00000000
-#define F_RES_TAG128K 64  // 0b01000000
-#define F_RES_TAG40K 128  // 0b10000000
-#define F_RES_TAG4K 192   // 0b11000000
+
+enum res_tag {
+  max128x1m = 0,
+  max64x128k = 64,
+  max32x40k = 128,
+  max32x4k = 192,
+};
 
 #define F_RES_TXTENC 32   // 0b00100000
 
 #define M_RES_TXTSIZE 24  // 0b00011000
-#define F_RES_TXTNONE 0   // 0b00000000
-#define F_RES_TXT1024 64  // 0b01000000
-#define F_RES_TXT128 128  // 0b10000000
-#define F_RES_TXT30 192   // 0b11000000
+
+enum res_txt {
+  none_txt = 0,
+  max1024 = 8,
+  max128 = 16,
+  max30 = 24,
+};
 
 #define F_RES_IMGENC 4    // 0b00000100
 
 #define M_RES_IMGSIZE 3   // 0b00000011
-#define F_RES_IMGNONE 0   // 0b00000000
-#define F_RES_IMG256 64   // 0b01000000
-#define F_RES_IMG64 128   // 0b10000000
-#define F_RES_IMGEX64 192 // 0b11000000
-
-enum res_tag {
-  max128x1m,
-  max64x128k,
-  max32x40k,
-  max32x4k,
-};
-
-enum res_txt {
-  none_txt,
-  max1024,
-  max128,
-  max30,
-};
 
 enum res_img {
-  none_img,
-  max256,
-  max64,
-  exact64,
+  none_img = 0,
+  max256 = 1,
+  max64 = 2,
+  exact64 = 3,
 };
 
 struct ext_header {

@@ -66,19 +66,21 @@ void frame_del(struct frame *f)
 b8 frame_read(struct frame *f, FILE *stream)
 {
   frame_clear(f);
-  char headerbuf[7];
+  char headerbuf[6];
 
   u64 cur = ftell(stream);
 
   f->state = bad;
   f->pos = cur;
-  if (fread(f->id, sizeof(char), 4, stream) < 4) {
+  fread(f->id, sizeof(char), 4, stream);
+  if (ferror(stream)) {
     fclose(stream);
     return false;
   }
-  if (fread(headerbuf, sizeof(char), 6, stream) < 6)
+  fread(headerbuf, sizeof(char), 6, stream);
+  if (ferror(stream))
     return false;
-  if (is_synchsafe_28((u8 *)headerbuf)) {
+  if (is_synchsafe_u28((u8 *)headerbuf)) {
     f->size = read_synchsafe_u28((u8 *)headerbuf);
   } else {
     f->size_synchunsafe = true;
@@ -96,9 +98,12 @@ b8 frame_read(struct frame *f, FILE *stream)
   f->format.length_indicated = headerbuf[5] & F_LENINDI;
 
   f->data = malloc(sizeof(*f->data) * (f->size + 1));
-  if (f->data == NULL || fread(f->data, sizeof(char), f->size, stream) < f->size) {
+  if (f->data == NULL) {
     fseek(stream, cur, SEEK_SET);
-    return false;
+  } else {
+    fread(f->data, sizeof(char), f->size, stream);
+    if (ferror(stream))
+      return false;
   }
   f->data[f->size] = '\0';
   f->state = good;

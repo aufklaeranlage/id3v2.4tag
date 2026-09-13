@@ -11,7 +11,7 @@ const u8 *boolstr(b8 val)
   return strs[val == 0];
 }
 
-inline b8 is_synchsafe_28(const u8 *synchsafe)
+inline b8 is_synchsafe_u28(const u8 *synchsafe)
 {
   return (!(synchsafe[0] & M_SYNCHUNSAFE ||
         synchsafe[1] & M_SYNCHUNSAFE ||
@@ -45,7 +45,7 @@ void write_synchsafe_u28(u8 *dest, u32 n)
   dest[3] = n & M_SYNCHSAFE;
 }
 
-inline b8 is_synchsafe_35(const u8 *synchsafe)
+inline b8 is_synchsafe_u35(const u8 *synchsafe)
 {
   return (!(synchsafe[0] & M_SYNCHUNSAFE ||
         synchsafe[1] & M_SYNCHUNSAFE ||

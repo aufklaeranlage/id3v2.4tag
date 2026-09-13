@@ -113,5 +113,10 @@ FILE *file_stream_full(FILE *stream, const struct file *h);
  */
 struct frame **file_get_frames(const struct file *f, const char id[4]);
 
-#endif
+b8 file_save(struct file *f);
 
+#define FR_ADD_UNIQUE 1
+
+b8 file_add_frame(struct file *file, struct frame *frame, u32 flags);
+
+#endif

@@ -1,5 +1,7 @@
 #include "file.h"
 
+#include "utils.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -199,7 +201,7 @@ struct frame **file_get_frames(const struct file *f, const char id[4])
   return ret;
 }
 
-void file_update_frame_pos(struct file *f)
+static void file_update_frame_pos(struct file *f)
 {
   if (f->nframes == 0)
     return ;
@@ -210,18 +212,123 @@ void file_update_frame_pos(struct file *f)
   }
 }
 
+static b8 file_write_header(struct file *f, FILE *stream)
+{
+  char  buf[10];
+  memcpy(buf, "ID3", 3);
+  buf[3] = (u8)f->header.version.major;
+  buf[4] = (u8)f->header.version.minor;
+  buf[5] = !(!(f->header.flags.unsynchronisation)) * F_UNSYN |
+    !(!(f->header.flags.extended)) * F_EXTEN |
+    !(!(f->header.flags.experimental)) * F_EXPER |
+    !(!(f->header.flags.footer)) * F_FOOTR |
+    !(!(f->header.flags.uncleared)) * F_UNCLR;
+  write_synchsafe_u28((u8 *)buf + 6, f->header.size);
+  fwrite(buf, sizeof(*buf), 10, stream);
+  return !ferror(stream);
+}
+
+static b8 file_write_ext_header(struct file *f, FILE *stream)
+{
+  char  buf[15]; /* Max size of ext header */
+  write_synchsafe_u28((u8 *)buf, f->ext_header.size);
+  buf[4] = 1; /* Number of flag bytes */
+  buf[5] = !(!(f->ext_header.flags.update)) * F_UPDATE |
+    !(!(f->ext_header.flags.crc)) * F_CRCPRES |
+    !(!(f->ext_header.flags.restriction)) * F_RESTRICT;
+  u32 bufpos = 6;
+  if (f->ext_header.flags.update)
+    buf[bufpos++] = '\0'; /* Data can be anything this is more of a confirmation byte */
+  if (f->ext_header.flags.crc) {
+    buf[bufpos++] = 5;
+    write_synchsafe_u35((u8 *)buf + bufpos, f->ext_header.crc);
+    bufpos += 5;
+  }
+  if (f->ext_header.flags.restriction) {
+    buf[bufpos++] = 1;
+    buf[bufpos++] = f->ext_header.restriction.tag_size |
+      !(!(f->ext_header.restriction.txt_encode)) * F_RES_TXTENC |
+      f->ext_header.restriction.txt_size |
+      !(!(f->ext_header.restriction.img_encode)) * F_RES_IMGENC |
+      f->ext_header.restriction.img_size;
+  }
+  fwrite(buf, sizeof(*buf), bufpos, stream);
+  return !ferror(stream);
+}
+
+static b8 file_write_frame(struct frame *f, FILE *stream) {
+  char  headerbuf[10];
+  memcpy(headerbuf, f->id, 4);
+  write_synchsafe_u28((u8 *)headerbuf + 4, f->size);
+  headerbuf[8] = !(!(f->status.preserve_tag)) * F_TAGPRES |
+    !(!(f->status.preserve_file)) * F_FILPRES |
+    !(!(f->status.read_only)) * F_RDONLY;
+  headerbuf[9] = !(!(f->format.grouped)) * F_GROUPED |
+    !(!(f->format.compressed)) * F_COMPRES |
+    !(!(f->format.encrypted)) * F_ENCRYPT |
+    !(!(f->format.unsynchronisation)) * F_UNSYNC |
+    !(!(f->format.length_indicated)) * F_LENINDI;
+
+  fwrite(headerbuf, sizeof(*f->id), 10, stream);
+  if (!ferror(stream))
+    return false;
+  fwrite(f->data, sizeof(*f->data), f->size, stream);
+  return !ferror(stream);
+}
+
+static b8 file_write_frames(struct file *f, FILE *stream)
+{
+  for (u32 i = 0; i < f->nframes; i++) {
+    if (file_write_frame(f->frames[i], stream) == false)
+      return i;
+  }
+  return 0;
+}
+
 b8 file_save(struct file *f)
 {
   FILE *stream = fopen(f->name, "rw");
   if (stream == NULL)
     return false;
+  u32 size = f->header.state == unset ? f->footer.size : f->header.size;
   u32 new_size = 0;
   for (u32 i = 0; i < f->nframes; i++)
     new_size += f->frames[i]->size;
 
   if (new_size > f->header.size) {
-    
+    if (move_file_contents(f->name, size, new_size - size) == false)
+      return false;
+  }
+  file_update_frame_pos(f);
+  if (f->header.state != unset)
+    f->header.size = new_size;
+  if (f->footer.state != unset)
+    f->footer.size = new_size;
+  fseek(stream, 0, SEEK_SET);
+  if (!file_write_header(f, stream) ||
+    !file_write_ext_header(f, stream) ||
+    !file_write_frames(f, stream)) {
+    return false;
   }
 
+  return true;
+}
+
+b8 file_add_frame(struct file *file, struct frame *frame, u32 flags)
+{
+  (void)flags;
+  /* TODO Flesh out code for special scenarios and flags */
+  struct frame  *cpy = frame_clone(frame);
+  if (cpy == NULL)
+    return false;
+  struct frame  **new_frames = realloc(file->frames, sizeof(*file->frames) * (file->nframes + 1));
+  if (new_frames == NULL) {
+    frame_del(cpy);
+    return false;
+  }
+  u32 pos = file->frames[file->nframes - 1]->pos + file->frames[file->nframes - 1]->size;
+  cpy->pos = pos;
+  new_frames[file->nframes++] = cpy;
+  file->frames = new_frames;
   return true;
 }

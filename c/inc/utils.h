@@ -19,7 +19,7 @@ const u8 *boolstr(b8 val);
  *  @param synchsafe The data segement the number should be read from. Needs to
  *    be at least 4 bytes long.
  */
-b8  is_synchsafe_28(const u8 *synchsafe);
+b8  is_synchsafe_u28(const u8 *synchsafe);
 
 /** @brief Reads a synchsafe 28 bit number from the data segment `synchsafe` and
  *    returns it.
@@ -49,7 +49,7 @@ void write_synchsafe_u28(u8 *dest, u32 n);
  *  @param synchsafe The data segement the number should be read from. Needs to
  *    be at least 5 bytes long.
  */
-b8  is_synchsafe_35(const u8 *synchsafe);
+b8  is_synchsafe_u35(const u8 *synchsafe);
 
 /** @brief Reads a synchsafe 35 bit number from the data segment `synchsafe` and
  *    returns it.

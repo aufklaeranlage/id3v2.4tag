@@ -102,38 +102,11 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
       fseek(stream, cur, SEEK_SET);
       return false;
     }
-    switch (flagbuf[pos] & M_RES_TAGSIZE) {
-      case F_RES_TAG1M:
-        eh->restriction.tag_size = max128x1m; break;
-      case F_RES_TAG128K:
-        eh->restriction.tag_size = max64x128k; break;
-      case F_RES_TAG40K:
-        eh->restriction.tag_size = max32x40k; break;
-      case F_RES_TAG4K:
-        eh->restriction.tag_size = max32x4k; break;
-    }
+    eh->restriction.tag_size = flagbuf[pos] & M_RES_TAGSIZE;
     eh->restriction.txt_encode = flagbuf[pos] & F_RES_TXTENC;
-    switch (flagbuf[pos] & M_RES_TXTSIZE) {
-      case F_RES_TXTNONE:
-        eh->restriction.txt_size = none_txt; break;
-      case F_RES_TXT1024:
-        eh->restriction.txt_size = max1024; break;
-      case F_RES_TXT128:
-        eh->restriction.txt_size = max128; break;
-      case F_RES_TXT30:
-        eh->restriction.txt_size = max30; break;
-    }
+    eh->restriction.txt_size = flagbuf[pos] & M_RES_TXTSIZE;
     eh->restriction.img_encode = flagbuf[pos] & F_RES_IMGENC;
-    switch (flagbuf[pos] & M_RES_IMGSIZE) {
-      case F_RES_IMGNONE:
-        eh->restriction.img_size = none_img; break;
-      case F_RES_IMG256:
-        eh->restriction.img_size = max256; break;
-      case F_RES_IMG64:
-        eh->restriction.img_size = max64; break;
-      case F_RES_IMGEX64:
-        eh->restriction.img_size = exact64; break;
-    }
+    eh->restriction.img_size = flagbuf[pos] & M_RES_IMGSIZE;
   }
 
   eh->state = good;
