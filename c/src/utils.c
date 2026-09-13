@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <stdlib.h>
+
 const u8 *boolstr(b8 val)
 {
   static const u8 strs[2][6] = {
@@ -79,4 +81,41 @@ void write_synchsafe_u35(u8 *dest, u64 n)
   dest[2] = (n >> 14) & M_SYNCHSAFE;
   dest[3] = (n >> 7) & M_SYNCHSAFE;
   dest[4] = n & M_SYNCHSAFE;
+}
+
+b8 move_file_contents(const char *filename, u32 start, u32 size_diff) {
+  FILE *stream = fopen(filename, "r+");
+  if (stream == NULL)
+    return false;
+  char  *buf[2];
+  buf[0] = calloc(sizeof(*buf), size_diff);
+  buf[1] = calloc(sizeof(*buf), size_diff);
+  if (buf[0] == NULL || buf[1] == NULL)
+    goto free_failure;
+
+  fseek(stream, start, SEEK_SET);
+  u8  bufpos = 0;
+  i32 buffill[2] = {size_diff, size_diff};
+  while (feof(stream) == false && buffill[(bufpos + 1) % 2] != 0) {
+    u32 cur = ftell(stream);
+    buffill[bufpos] = fread(buf[bufpos], sizeof(*buf[bufpos]), size_diff, stream);
+    if (ferror(stream) == true)
+      goto free_failure;
+    fseek(stream, cur, SEEK_SET);
+    bufpos = (bufpos + 1) % 2;
+    fwrite(buf[bufpos], sizeof(*buf[bufpos]), buffill[bufpos], stream);
+    if (ferror(stream) == true)
+      goto free_failure;
+    buffill[bufpos] = 0;
+  }
+
+  free(buf[0]);
+  free(buf[1]);
+  fclose(stream);
+  return true;
+free_failure:
+  free(buf[0]);
+  free(buf[1]);
+  fclose(stream);
+  return false;
 }

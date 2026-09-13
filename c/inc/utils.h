@@ -3,6 +3,8 @@
 
 #include "typedef.h"
 
+#include <stdio.h>
+
 /** @brief Returns a pointer to a string representation of the boolean value
  *    provided.
  */
@@ -71,5 +73,7 @@ u64 read_synchunsafe_u40(const u8 *notsynchsafe);
  *  @param n The number to be written into `dest`.
  */
 void write_synchsafe_u35(u8 *dest, u64 n);
+
+b8 move_file_contents(const char *filename, u32 start, u32 size_diff);
 
 #endif

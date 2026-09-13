@@ -198,3 +198,30 @@ struct frame **file_get_frames(const struct file *f, const char id[4])
   }
   return ret;
 }
+
+void file_update_frame_pos(struct file *f)
+{
+  if (f->nframes == 0)
+    return ;
+  u32 pos = f->frames[0]->pos;
+  for (u32 i = 0; i < f->nframes; i++) {
+    f->frames[i]->pos = pos;
+    pos += f->frames[i]->size;
+  }
+}
+
+b8 file_save(struct file *f)
+{
+  FILE *stream = fopen(f->name, "rw");
+  if (stream == NULL)
+    return false;
+  u32 new_size = 0;
+  for (u32 i = 0; i < f->nframes; i++)
+    new_size += f->frames[i]->size;
+
+  if (new_size > f->header.size) {
+    
+  }
+
+  return true;
+}
