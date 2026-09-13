@@ -17,6 +17,7 @@ SRCS	+= utils.c
 SRCS	+= frame.c
 SRCS	+= header.c
 SRCS	+= ext_header.c
+SRCS	+= footer.c
 SRCS	+= file.c
 
 SRCS	+= main.c

@@ -1,11 +1,11 @@
-#include "header.h"
+#include "footer.h"
 
 #include "utils.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-struct header *header_init(struct header *h)
+struct footer *footer_init(struct footer *h)
 {
 	if (h == NULL)
 		return NULL;
@@ -14,45 +14,45 @@ struct header *header_init(struct header *h)
 	return h;
 }
 
-struct header *header_new()
+struct footer *footer_new()
 {
-	struct header	*new = malloc(sizeof(*new));
-	return header_init(new);
+	struct footer	*new = malloc(sizeof(*new));
+	return footer_init(new);
 }
 
-struct header *header_cpy(struct header *dest, const struct header *src)
+struct footer *footer_cpy(struct footer *dest, const struct footer *src)
 {
   memcpy(dest, src, sizeof(*src));
   return dest;
 }
 
-struct header *header_clone(const struct header *src)
+struct footer *footer_clone(const struct footer *src)
 {
-  struct header *dest = malloc(sizeof(*dest));
+  struct footer *dest = malloc(sizeof(*dest));
   if (dest == NULL)
     return NULL;
-  return header_cpy(dest, src);
+  return footer_cpy(dest, src);
 }
 
-struct header *header_clear(struct header *h)
+struct footer *footer_clear(struct footer *h)
 {
-  return header_init(h);
+  return footer_init(h);
 }
 
-void header_del(struct header *h)
+void footer_del(struct footer *h)
 {
-  header_clear(h);
+  footer_clear(h);
   free(h);
 }
 
-b8 header_read(FILE *stream, struct header *h)
+b8 footer_read(FILE *stream, struct footer *h)
 {
-  header_clear(h);
+  footer_clear(h);
   char  buf[10];
   u64   cur = ftell(stream);
 
   h->state = bad;
-  if (fread(buf, sizeof(u8), 10, stream) < 10 || strncmp(buf, "ID3", 3) != 0) {
+  if (fread(buf, sizeof(u8), 10, stream) < 10 || strncmp(buf, "3DI", 3) != 0) {
     fseek(stream, cur, SEEK_SET);
     return false;
   }
@@ -72,13 +72,13 @@ b8 header_read(FILE *stream, struct header *h)
   return true;
 }
 
-FILE *header_stream(FILE *stream, const struct header *h)
+FILE *footer_stream(FILE *stream, const struct footer *h)
 {
   fprintf(stream, "ID3v%d.%d, size: %d", h->version.major, h->version.minor, h->size);
   return stream;
 }
 
-FILE *header_stream_full(FILE *stream, const struct header *h)
+FILE *footer_stream_full(FILE *stream, const struct footer *h)
 {
   fprintf(stream, "version { major: %d, minor: %d }, flags { unsynchronisation: %s, extended: %s, experimental: %s, footer: %s, uncleared: %s },size: %d",
       h->version.major, h->version.minor, boolstr(h->flags.unsynchronisation), boolstr(h->flags.extended), boolstr(h->flags.experimental), boolstr(h->flags.footer), boolstr(h->flags.uncleared), h->size);
