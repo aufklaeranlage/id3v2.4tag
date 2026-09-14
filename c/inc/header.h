@@ -24,7 +24,8 @@ struct header {
     b8  footer;
     b8  uncleared;
   } flags;
-  u32  size;
+  u32 size;
+  u32 pos;
 };
 
 /** @brief Initializes a `struct header`.
@@ -70,6 +71,30 @@ void          header_del(struct header *f);
  *  @return Returns `true` on successfull read; `false` on failure to read a frame
  */
 b8            header_read(FILE *stream, struct header *h);
+
+/** @brief Updates a `struct header`s internal fields to reflect changes
+ *    made by the user.
+ *  @return Always `true`.
+ *  
+ *  It is important to update all fields of a file before saving it to properly
+ *    reflect changes made by the user. This function is called as part of the
+ *    `file_update()` function.
+ */
+b8            header_update(struct header *h);
+
+/** @brief Sets a `struct header`s flags According to the flags passed in `flags`.
+ *  @return Always true.
+ *  @param h The `struct header` whos flags should be altered.
+ *  @param flags The byte composed of ORd flags from the list below.
+ *
+ *  The `flag` byte passed consists of multiple different flags ORd together. The
+ *    Macros available are:
+ *      - F_UNSYN :   To indicate unsynchronisation in the file
+ *      - F_EXTEN :   To indicate the existence of an extended header
+ *      - F_EXPER :   To indicate the existence of experimental frames
+ *      - F_FOOTR :   To indicate the existence of a footer
+ */
+b8            header_set_flags(struct header *h, u8 flags);
 
 /** @brief Writes the information from `struct header *h` into the stream `stream`.
  *  @return Returns the stream.

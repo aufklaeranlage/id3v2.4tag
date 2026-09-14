@@ -51,7 +51,7 @@ b8 footer_read(FILE *stream, struct footer *h)
   char  buf[10];
   u64   cur = ftell(stream);
 
-  h->state = bad;
+  h->state = unset;
   if (fread(buf, sizeof(u8), 10, stream) < 10 || strncmp(buf, "3DI", 3) != 0) {
     fseek(stream, cur, SEEK_SET);
     return false;
@@ -68,7 +68,30 @@ b8 footer_read(FILE *stream, struct footer *h)
   h->flags.uncleared = buf[5] & F_UNCLR;
 
   h->size = read_synchsafe_u28((u8 *)buf + 6);
+  h->pos = cur;
 
+  return true;
+}
+
+b8 footer_update(struct footer *f)
+{
+  if (f->state == unset)
+    return false;
+  return true;
+}
+
+b8 footer_cpy_header(struct footer *f, struct header *h)
+{
+  f->state = h->state;
+  f->version.major = h->version.major;
+  f->version.minor = h->version.minor;
+  f->flags.unsynchronisation = h->flags.unsynchronisation;
+  f->flags.extended = h->flags.extended;
+  f->flags.experimental = h->flags.experimental;
+  f->flags.footer = h->flags.footer;
+  f->flags.uncleared = h->flags.uncleared;
+  f->size = h->size;
+  f->pos = h->pos + h->size - 10;
   return true;
 }
 

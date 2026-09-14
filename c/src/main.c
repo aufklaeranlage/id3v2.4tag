@@ -210,6 +210,7 @@ struct frame *frame_from_json(const char *json)
     b8  unsynchronisation;
     b8  length_indicated;
     b8  data;
+    b8  size;
   } set;
   memset(&set, 0, sizeof(set));
   u32 pos = 0;
@@ -218,6 +219,7 @@ struct frame *frame_from_json(const char *json)
   while (json[pos] != '\0') {
     char  *var, *val;
     u32   varsize, valsize;
+    u32   numret;
     b8    boolret;
     if (!get_string(json, &pos, &var, &varsize))
       goto free_failure;
@@ -231,6 +233,11 @@ struct frame *frame_from_json(const char *json)
       set.id = true;
       memcpy(frame->id, val, 4);
       frame->id[4] = '\0';
+    } else if (memcmp(var, "size", varsize) == 0) {
+      if (set.size == true || !get_u32(json, &pos, &numret))
+        goto free_failure;
+      set.size = true;
+      frame->size = numret;
     } else if (memcmp(var, "preserve_tag", varsize) == 0) {
       if (set.preserve_tag == true || !get_bool(json, &pos, &boolret))
         goto free_failure;
@@ -275,13 +282,27 @@ struct frame *frame_from_json(const char *json)
       if (set.read_only == true || !get_string(json, &pos, &val, &valsize))
         goto free_failure;
       set.data = true;
-      char  *data = malloc(sizeof(*data) * (valsize + 1));
+      char  *data = calloc(sizeof(*data), valsize + 1);
       if (data == NULL)
         goto free_failure;
       memcpy(data, val, valsize);
       data[valsize] = 0;
-      if (!make_unescaped_str(data, &frame->data, &frame->size))
+      u32 size;
+      if (!make_unescaped_str(data, &frame->data, &size))
+        goto free_failure;
+      if (set.size) {
+        if (size > frame->size) {
           goto free_failure;
+        } else if (size < frame->size) {
+          char *new_data = calloc(sizeof(*new_data), size + 1);
+          if (new_data == NULL)
+            goto free_failure;
+          memcpy(new_data, frame->data, frame->size);
+          free(frame->data);
+          frame->data = new_data;
+          frame->size = size;
+        }
+      }
     } else {
       goto free_failure;
     }
@@ -290,6 +311,9 @@ struct frame *frame_from_json(const char *json)
     if (!get_comma(json, &pos))
       goto free_failure;
   }
+
+  if (!set.data || !set.id)
+    goto free_failure;
 
 free_failure:
   frame_del(frame);
@@ -363,7 +387,7 @@ int main(int ac, char *av[])
   }
 
   if (search == true) {
-    struct frame  **results = file_get_frames(f, id);
+    struct frame  **results = file_get_frames_by_id(f, id);
     if (results == NULL) {
       fprintf(stderr, "%s: error while searching for frames.\n", av[0]);
       goto  exit;

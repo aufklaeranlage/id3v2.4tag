@@ -14,10 +14,17 @@ struct file {
 
   struct header     header;
   struct ext_header ext_header;
-  struct footer     footer;
   
   struct frame  **frames;
   u32           nframes;
+
+  struct footer     footer;
+
+  struct {
+    b8  needed;
+    u32 diff;
+    u32 wanted_padding;
+  } size_update;
 
   u32   padding;
 };
@@ -111,7 +118,46 @@ FILE *file_stream_full(FILE *stream, const struct file *h);
  *    a specific instance of frames with identical tags by passing their pointer
  *    to the appropriate function.
  */
-struct frame **file_get_frames(const struct file *f, const char id[4]);
+struct frame **file_get_frames_by_id(const struct file *f, const char id[4]);
+
+/** @brief Adds a header to the file if none was found during reading.
+ *  @return Returns `true` if there was no header in the file; Returns `false`
+ *    if a header was already present.
+ *  @param f The file a `struct header` is supposed to be added to.
+ *
+ *  The `struct header` is initialized with `header_init()` and can be
+ *    modified with the appropriate functions.
+ */
+b8          file_add_header(struct file *f);
+
+/** @brief Adds a `struct ext_header` to the file if none was found during
+ *    reading.
+ *  @return Returns `true` if there was no extended header in the file;
+ *    Returns `false` if there was no header in the file or if an extended
+ *    header was already present.
+ *  @param f The file a `struct ext_header` is supposed to be added to.
+ *
+ *  The `struct ext_header` is initialized with `ext_header_init()` and can be
+ *    modified with the appropriate functions.
+ */
+b8          file_add_ext_header(struct file *f);
+
+/** @brief Adds a footer to the file if none was found during reading.
+ *  @return Returns `true` if there was no footer in the file;
+ *    Returns `false` if there was no header in the file or if a footer was
+ *    already present.
+ *  @param f The file a `struct footer` is supposed to be added to.
+ *
+ *  No footer needs to be supplied, since the `struct footer` is just an offset
+ *    copy of the `struct header`.
+ */
+b8          file_add_footer(struct file *f);
+
+/** @brief Updates a `struct files` contents across all it's elements to represent
+ *    changes made by the user.
+ *  @return Always `true`.
+ */
+b8          file_update(struct file *f)
 
 b8 file_save(struct file *f);
 

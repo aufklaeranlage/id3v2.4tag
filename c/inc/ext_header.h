@@ -46,7 +46,7 @@ struct ext_header {
   struct {
     b8  update;
     b8  crc;
-    b8 restriction;
+    b8  restriction;
   } flags;
   u64   crc;
   struct {
@@ -99,7 +99,71 @@ void          ext_header_del(struct ext_header *f);
 /** @brief Reads the data from `stream` into the `struct frame *f`.
  *  @return Returns `true` on successfull read; `false` on failure to read a frame
  */
-b8 ext_header_read(FILE *stream, struct ext_header *h);
+b8            ext_header_read(FILE *stream, struct ext_header *h);
+
+/** @brief Updates a `struct ext_header`s internal fields to reflect changes
+ *  made by the user.
+ *  @return Always `true`.
+ *  
+ *  It is important to update all fields of a file before saving it to properly
+ *    reflect changes made by the user. This function is called as part of the
+ *    `file_update()` function.
+ */
+b8            ext_header_update(struct ext_header *eh);
+
+/** @brief Sets the update flag for the extended header equal to the passed value.
+ *  @return Always `true`.
+ *  @param eh The `struct ext_header` that's supposed to be modified.
+ *  @param update The bool representation the flags is supposed to take.
+ *
+ *  Modifies the size of the extended header for later use in `file_update()`.
+ *  If you want to modify the flags in an extended header always do it through 
+ *  the `ext_header_set_xxx()` set of functions
+ */
+b8            ext_header_set_update(struct ext_header *eh, b8 update);
+
+/** @brief Sets the crc for the extended header equal to the passed value.
+ *  @return Always `true`.
+ *  @param eh The `struct ext_header` that's supposed to be modified.
+ *  @param crc The CRC that's supposed to be stored in the extended header.
+ *
+ *  Modifies the size of the extended header for later use in `file_update()`.
+ *  If you want to modify the flags in an extended header always do it through 
+ *  the `ext_header_set_xxx()` set of functions
+ */
+b8            ext_header_set_crc(struct ext_header *eh, u64 crc);
+
+/** @brief Sets the restrictions for the extended header equal to the passed value.
+ *  @return Always `true`.
+ *  @param eh The `struct ext_header` that's supposed to be modified.
+ *  @param flags The ORd combination of the available Macros listed below.
+ *
+ *  The list of Macros available for the `flag` parameter:
+ *    - F_RES_TXTENC :  If textencoding is present
+ *    - F_RES_IMGENC :  If imgencoding is present
+ *
+ *    - a combination of values from these enums:
+ *      - enum res_tag: Restrictions on the tag size:
+ *        - max128x1m   = 0
+ *        - max64x128k  = 64
+ *        - max32x40k   = 128
+ *        - max32x4k    = 192
+ *      - enum res_txt
+ *        - none_txt    = 0
+ *        - max1024     = 8
+ *        - max128      = 16
+ *        - max30       = 24
+ *      - enum res_img
+ *        - none_img    = 0
+ *        - max256      = 1
+ *        - max64       = 2
+ *        - exact64     = 3
+ *
+ *  Modifies the size of the extended header for later use in `file_update()`.
+ *  If you want to modify the flags in an extended header always do it through 
+ *  the `ext_header_set_xxx()` set of functions
+ */
+b8            ext_header_set_restrictions(struct ext_header *eh, u8 flags);
 
 /** @brief Writes the information from `struct ext_header *h` into the stream `stream`.
  *  @return Returns the stream.

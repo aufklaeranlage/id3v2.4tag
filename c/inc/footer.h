@@ -2,6 +2,7 @@
 # define ID3V240_FOOTER_H
 
 #include "id3v240.h"
+#include "header.h"
 
 #include <stdio.h>
 
@@ -25,6 +26,7 @@ struct footer {
     b8  uncleared;
   } flags;
   u32 size;
+  u32 pos;
 };
 
 /** @brief Initializes a `struct footer`.
@@ -69,7 +71,29 @@ void          footer_del(struct footer *f);
 /** @brief Reads the data from `stream` into the `struct frame *f`.
  *  @return Returns `true` on successfull read; `false` on failure to read a frame
  */
-b8 footer_read(FILE *stream, struct footer *h);
+b8            footer_read(FILE *stream, struct footer *h);
+
+/** @brief Updates a `struct footer`s internal fields to reflect changes
+ *  made by the user.
+ *  @return Always `true`.
+ *  
+ *  It is important to update all fields of a file before saving it to properly
+ *    reflect changes made by the user. This function is called as part of the
+ *    `file_update()` function.
+ */
+b8            footer_update(struct footer *eh);
+
+/** @brief Copies a `struct header`s information into a `struct footer`.
+ *  @return Always true.
+ *  @param f The `struct footer` to copy the `struct header`s data into.
+ *
+ *  Automatically set's the position of the `struct footer`, based on the size of
+ *    the `struct header`s position and size.
+ *
+ *  If you want to add a footer to a file, don't user `footer_cpy_header()` but
+ *    `file_add_footer()` instead.
+ */
+b8            footer_cpy_header(struct footer *f, struct header *h);
 
 /** @brief Writes the information from `struct footer *h` into the stream `stream`.
  *  @return Returns the stream.

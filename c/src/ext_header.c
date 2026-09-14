@@ -9,7 +9,7 @@ struct ext_header *ext_header_init(struct ext_header *eh)
 {
   if (eh == NULL)
     return NULL;
-  memset(eh, '\0', sizeof(*eh));
+  memset(eh, 0, sizeof(*eh));
   eh->state = unset;
   return eh;
 }
@@ -49,7 +49,7 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
   char  buf[6];
   u64   cur = ftell(stream);
 
-  eh->state = bad;
+  eh->state = unset;
   if (fread(buf, sizeof(char), 6, stream) < 6) {
     fseek(stream, cur, SEEK_SET);
     return false;
@@ -66,14 +66,15 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
   eh->flags.update = buf[5] & F_UPDATE;
   eh->flags.crc = buf[5] & F_CRCPRES;
   eh->flags.restriction = buf[5] & F_RESTRICT;
-  if (eh->size == 6) {
-    eh->state = good;
-    return true;
-  }
+  eh->state = bad;
 
   if (eh->size != (u32)(6 + (eh->flags.update * 1) + (eh->flags.crc * 6) + (eh->flags.restriction * 2))) {
     fseek(stream, cur, SEEK_SET);
     return false;
+  }
+  if (eh->size == 6) {
+    eh->state = good;
+    return true;
   }
 
   char flagbuf[10];
@@ -110,6 +111,48 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
   }
 
   eh->state = good;
+  return true;
+}
+
+b8 ext_header_update(struct ext_header *eh)
+{
+  if (eh->state == unset) {
+    ext_header_init(eh);
+    eh->state = good;
+  }
+  eh->size = (u32)(6 + (eh->flags.update * 1) + (eh->flags.crc * 6) + (eh->flags.restriction * 2));
+  return true;
+}
+
+b8 ext_header_set_update(struct ext_header *eh, b8 update)
+{
+  if (!eh->flags.update && update)
+    eh->size += 1;
+  else if (eh->flags.update && !update)
+    eh->size -= 1;
+  eh->flags.update = update;
+  return true;
+}
+
+b8 ext_header_set_crc(struct ext_header *eh, u64 crc)
+{
+  if (!eh->flags.crc)
+    eh->size += 6;
+  eh->flags.crc = true;
+  eh->crc = crc;
+  return true;
+}
+
+b8 ext_header_set_restrictions(struct ext_header *eh, u8 flags)
+{
+  if (!eh->flags.restriction)
+    eh->size += 2;
+  eh->flags.restriction = true;
+  eh->restriction.tag_size = flags & M_RES_TAGSIZE;
+  eh->restriction.txt_encode = flags & F_RES_TXTENC;
+  eh->restriction.txt_size = flags & M_RES_TXTSIZE;
+  eh->restriction.img_encode = flags & F_RES_IMGENC;
+  eh->restriction.img_size = flags & M_RES_IMGSIZE;
   return true;
 }
 

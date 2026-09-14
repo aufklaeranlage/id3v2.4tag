@@ -51,7 +51,7 @@ b8 header_read(FILE *stream, struct header *h)
   char  buf[10];
   u64   cur = ftell(stream);
 
-  h->state = bad;
+  h->state = unset;
   fread(buf, sizeof(u8), 10, stream);
   if (ferror(stream) == true || strncmp(buf, "ID3", 3) != 0) {
     fseek(stream, cur, SEEK_SET);
@@ -69,7 +69,23 @@ b8 header_read(FILE *stream, struct header *h)
   h->flags.uncleared = buf[5] & F_UNCLR;
 
   h->size = read_synchsafe_u28((u8 *)buf + 6);
+  h->pos = cur;
 
+  return true;
+}
+
+b8 header_update(struct header *h)
+{
+  (void)h;
+  return true;
+}
+
+b8 header_set_flags(struct header *h, u8 flags)
+{
+  h->flags.unsynchronisation = flags & F_UNSYN;
+  h->flags.extended = flags & F_EXTEN;
+  h->flags.experimental = flags & F_EXPER;
+  h->flags.footer = flags & F_FOOTR;
   return true;
 }
 
