@@ -10,15 +10,16 @@ enum state {
 };
 
 enum txtenc {
-  ascii,
-  ucs2,
-  utf16be,
-  utf8,
+  ascii = 0,
+  ucs2 = 1,
+  utf16be = 2,
+  utf8 = 3,
   invalid_txtenc
 };
 
+/* TODO Maybe move to APIC file */
 enum imgtype {
-  other,
+  other = 0,
   icon32x32,
   icon_other,
   cover_front,
