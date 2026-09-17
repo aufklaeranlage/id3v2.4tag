@@ -157,7 +157,7 @@ b8          file_add_footer(struct file *f);
  *    changes made by the user.
  *  @return Always `true`.
  */
-b8          file_update(struct file *f)
+b8          file_update(struct file *f);
 
 b8 file_save(struct file *f);
 

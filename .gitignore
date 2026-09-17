@@ -10,3 +10,5 @@ compile_flags.txt
 c/tests/build
 
 *.mp3
+
+.*

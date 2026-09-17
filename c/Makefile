@@ -20,6 +20,8 @@ SRCS	+= ext_header.c
 SRCS	+= footer.c
 SRCS	+= file.c
 
+SRCS	+= aenc.c
+
 SRCS	+= main.c
 
 OBJS	:= $(SRCS:.c=.o)
