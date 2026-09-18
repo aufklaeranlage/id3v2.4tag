@@ -23,6 +23,7 @@ SRCS	+= file.c
 SRCS	+= aenc.c
 SRCS	+= apic.c
 SRCS	+= geob.c
+SRCS	+= ufid.c
 
 SRCS	+= main.c
 
