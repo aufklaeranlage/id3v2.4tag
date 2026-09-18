@@ -81,6 +81,7 @@ b8 aenc_read(struct aenc *aenc, const struct frame *frame)
 b8 aenc_write(struct frame *frame, const struct aenc *aenc)
 {
   frame_clear(frame);
+  memcpy(frame->id, "AENC", 5);
   frame->size = aenc->owner_len + 5 + aenc->info_len;
   frame->data = calloc(sizeof(*frame->data), frame->size + 1);
   if (frame->data == NULL) {

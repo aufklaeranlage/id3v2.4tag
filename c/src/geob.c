@@ -129,12 +129,13 @@ b8 geob_write(struct frame *frame, const struct geob *geob)
   memcpy(frame->data + pos, geob->desc, geob->desc_len + 1);
   pos = geob->desc_len;
   memcpy(frame->data + pos, geob->object, geob->object_len);
+  memcpy(frame->id, "GEOB", 5);
   return true;
 }
 
 FILE  *geob_stream(FILE *stream, const struct geob *geob)
 {
-  fprintf(stream, "geob: {mime: %s, filename: %s, description: %s, object: <binary>}", geob->mime, geob->filename, geob->desc);
+  fprintf(stream, "GEOB: {mime: %s, filename: %s, description: %s, object: <binary>}", geob->mime, geob->filename, geob->desc);
   return stream;
 }
 

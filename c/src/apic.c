@@ -149,12 +149,13 @@ b8 apic_write(struct frame *frame, const struct apic *apic)
   memcpy(frame->data + pos, apic->description, apic->description_len + 1);
   pos += apic->description_len;
   memcpy(frame->data + pos, apic->img_data, apic->img_data_len);
+  memcpy(frame->id, "APIC", 5);
   return true;
 }
 
 FILE  *apic_stream(FILE *stream, const struct apic *apic)
 {
-  fprintf(stream, "apic: {mime: %s, type: %s, description: %s, img data: <binary>}", apic->mime, imgtype_str(apic->type), apic->description);
+  fprintf(stream, "APIC: {mime: %s, type: %s, description: %s, img data: <binary>}", apic->mime, imgtype_str(apic->type), apic->description);
   return stream;
 }
 

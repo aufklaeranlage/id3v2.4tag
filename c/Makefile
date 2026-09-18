@@ -24,7 +24,7 @@ SRCS	+= aenc.c
 SRCS	+= apic.c
 SRCS	+= geob.c
 SRCS	+= ufid.c
-
+SRCS	+= tif.c
 SRCS	+= txxx.c
 
 SRCS	+= main.c

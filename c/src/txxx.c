@@ -101,12 +101,13 @@ b8 txxx_write(struct frame *frame, const struct txxx *txxx)
   memcpy(frame->data + pos, txxx->desc, txxx->desc_len + 1);
   pos += txxx->desc_len + 1;
   memcpy(frame->data + pos, txxx->val, txxx->val_len);
+  memcpy(frame->id, "TXXX", 5);
   return true;
 }
 
 FILE  *txxx_stream(FILE *stream, const struct txxx *txxx)
 {
-  fprintf(stream, "txxx: {description: %s, val: %s}", txxx->desc, txxx->val);
+  fprintf(stream, "TXXX: {description: %s, val: %s}", txxx->desc, txxx->val);
   return stream;
 }
 

@@ -1,5 +1,7 @@
 #include "file.h"
 
+#include "txxx.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -320,6 +322,21 @@ free_failure:
   return NULL;
 }
 
+static void print_txxx(struct frame * const *frames)
+{
+  struct txxx txxx;
+  txxx_init(&txxx);
+  for (u32 i = 0; frames[i] != NULL; i++) {
+    if (txxx_read(&txxx, frames[i]) == false) {
+      fprintf(stderr, "Couldn't make specific Tinit_XXX frame. skipping...\n");
+      continue ;
+    }
+    txxx_stream(stdout, &txxx);
+    fprintf(stdout, "\n");
+    txxx_clear(&txxx);
+  }
+}
+
 int main(int ac, char *av[])
 {
   char  *filename;
@@ -392,12 +409,16 @@ int main(int ac, char *av[])
       fprintf(stderr, "%s: error while searching for frames.\n", av[0]);
       goto  exit;
     }
-    for (u32 i = 0; results[i] != NULL; i++) {
-      if (fshort)
-        frame_stream(stdout, results[i]);
-      else
-        frame_stream_full(stdout, results[i]);
-      fprintf(stdout, "\n");
+    if (memcmp(id, "TXXX", 5) == 0) {
+      print_txxx(results);
+    } else {
+      for (u32 i = 0; results[i] != NULL; i++) {
+        if (fshort)
+          frame_stream(stdout, results[i]);
+        else
+          frame_stream_full(stdout, results[i]);
+        fprintf(stdout, "\n");
+      }
     }
   } else {
     if (fshort)
