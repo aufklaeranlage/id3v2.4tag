@@ -21,6 +21,8 @@ SRCS	+= footer.c
 SRCS	+= file.c
 
 SRCS	+= aenc.c
+SRCS	+= apic.c
+SRCS	+= geob.c
 
 SRCS	+= main.c
 
