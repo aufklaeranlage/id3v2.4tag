@@ -22,21 +22,21 @@ b8 geob_cpy(struct geob *dest, const struct geob *src)
   geob_clear(dest);
   dest->mime = calloc(sizeof(*dest->mime), src->mime_len + 1);
   dest->filename = calloc(sizeof(*dest->filename), src->filename_len);
-  dest->description = calloc(sizeof(*dest->description), src->description_len + 1);
+  dest->desc = calloc(sizeof(*dest->desc), src->desc_len + 1);
   dest->object = calloc(sizeof(*dest->object), src->object_len);
-  if (dest->mime == NULL || dest->filename == NULL || dest->description == NULL || dest->object == NULL) {
+  if (dest->mime == NULL || dest->filename == NULL || dest->desc == NULL || dest->object == NULL) {
     geob_clear(dest);
     return false;
   }
-  memcpy(dest->mime, src->mime, dest->mime_len + 1);
-  memcpy(dest->filename, src->filename, dest->filename_len + 1);
-  memcpy(dest->description, src->description, dest->description_len + 1);
-  memcpy(dest->object, src->object, dest->object_len);
   dest->txtenc = src->txtenc;
   dest->mime_len = src->mime_len;
   dest->filename_len = src->filename_len;
-  dest->description_len = src->description_len;
+  dest->desc_len = src->desc_len;
   dest->object_len = src->object_len;
+  memcpy(dest->mime, src->mime, dest->mime_len + 1);
+  memcpy(dest->filename, src->filename, dest->filename_len + 1);
+  memcpy(dest->desc, src->desc, dest->desc_len + 1);
+  memcpy(dest->object, src->object, dest->object_len);
   return true;
 }
 
@@ -56,7 +56,7 @@ struct geob *geob_clear(struct geob *geob)
 {
   free(geob->mime);
   free(geob->filename);
-  free(geob->description);
+  free(geob->desc);
   free(geob->object);
   return geob_init(geob);
 }
@@ -89,8 +89,8 @@ b8 geob_read(struct geob *geob, const struct frame *frame)
     geob_clear(geob);
     return false;
   }
-  geob->description_len = strlen(frame->data + pos);
-  pos += geob->description_len + 1;
+  geob->desc_len = strlen(frame->data + pos);
+  pos += geob->desc_len + 1;
   if (frame->size < pos) {
     geob_clear(geob);
     return false;
@@ -98,23 +98,23 @@ b8 geob_read(struct geob *geob, const struct frame *frame)
   geob->object_len = frame->size - pos;
   geob->mime = calloc(sizeof(*geob->mime), geob->mime_len + 1);
   geob->filename = calloc(sizeof(*geob->filename), geob->filename_len + 1);
-  geob->description = calloc(sizeof(*geob->description), geob->description_len + 1);
+  geob->desc = calloc(sizeof(*geob->desc), geob->desc_len + 1);
   geob->object = calloc(sizeof(*geob->object), geob->object_len);
-  if (geob->mime == NULL || geob->filename == NULL || geob->description == NULL || geob->object == NULL) {
+  if (geob->mime == NULL || geob->filename == NULL || geob->desc == NULL || geob->object == NULL) {
     geob_clear(geob);
     return false;
   }
-  memcpy(geob->mime, frame->data + 1, geob->mime_len);
-  memcpy(geob->filename, frame->data + 2 + geob->mime_len, geob->mime_len);
-  memcpy(geob->description, frame->data + 3 + geob->mime_len + geob->filename_len, geob->description_len);
-  memcpy(geob->object, frame->data + 4 + geob->mime_len + geob->filename_len + geob->description_len, geob->object_len);
+  memcpy(geob->mime, frame->data + 1, geob->mime_len + 1);
+  memcpy(geob->filename, frame->data + 2 + geob->mime_len, geob->filename_len + 1);
+  memcpy(geob->desc, frame->data + 3 + geob->mime_len + geob->filename_len, geob->desc_len + 1);
+  memcpy(geob->object, frame->data + 4 + geob->mime_len + geob->filename_len + geob->desc_len, geob->object_len);
   return true;
 }
 
 b8 geob_write(struct frame *frame, const struct geob *geob)
 {
   frame_clear(frame);
-  frame->size = 4 + geob->mime_len + geob->filename_len + geob->description_len + geob->object_len;
+  frame->size = 4 + geob->mime_len + geob->filename_len + geob->desc_len + geob->object_len;
   frame->data = calloc(sizeof(*frame->data), frame->size + 1);
   if (frame->data == NULL) {
     frame_clear(frame);
@@ -122,19 +122,19 @@ b8 geob_write(struct frame *frame, const struct geob *geob)
   }
   u32 pos = 0;
   frame->data[pos++] = (u8)geob->txtenc;
-  memcpy(frame->data + pos, geob->mime, geob->mime_len);
+  memcpy(frame->data + pos, geob->mime, geob->mime_len + 1);
   pos += geob->mime_len + 1;
-  memcpy(frame->data + pos, geob->filename, geob->filename_len);
+  memcpy(frame->data + pos, geob->filename, geob->filename_len + 1);
   pos += geob->filename_len + 1;
-  memcpy(frame->data + pos, geob->description, geob->description_len);
-  pos += geob->description_len;
+  memcpy(frame->data + pos, geob->desc, geob->desc_len + 1);
+  pos = geob->desc_len;
   memcpy(frame->data + pos, geob->object, geob->object_len);
   return true;
 }
 
 FILE  *geob_stream(FILE *stream, const struct geob *geob)
 {
-  fprintf(stream, "geob: {mime: %s, filename: %s, description: %s, object: <binary>}", geob->mime, geob->filename, geob->description);
+  fprintf(stream, "geob: {mime: %s, filename: %s, description: %s, object: <binary>}", geob->mime, geob->filename, geob->desc);
   return stream;
 }
 

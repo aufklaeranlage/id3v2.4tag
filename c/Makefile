@@ -25,6 +25,8 @@ SRCS	+= apic.c
 SRCS	+= geob.c
 SRCS	+= ufid.c
 
+SRCS	+= txxx.c
+
 SRCS	+= main.c
 
 OBJS	:= $(SRCS:.c=.o)

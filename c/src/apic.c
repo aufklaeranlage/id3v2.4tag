@@ -57,14 +57,14 @@ b8 apic_cpy(struct apic *dest, const struct apic *src)
     apic_clear(dest);
     return false;
   }
-  memcpy(dest->mime, src->mime, dest->mime_len + 1);
-  memcpy(dest->description, src->description, dest->description_len + 1);
-  memcpy(dest->img_data, src->img_data, dest->img_data_len);
   dest->txtenc = src->txtenc;
   dest->mime_len = src->mime_len;
   dest->type = src->type;
   dest->description_len = src->description_len;
   dest->img_data_len = src->img_data_len;
+  memcpy(dest->mime, src->mime, dest->mime_len + 1);
+  memcpy(dest->description, src->description, dest->description_len + 1);
+  memcpy(dest->img_data, src->img_data, dest->img_data_len);
   return true;
 }
 
@@ -126,8 +126,8 @@ b8 apic_read(struct apic *apic, const struct frame *frame)
     apic_clear(apic);
     return false;
   }
-  memcpy(apic->mime, frame->data + 1, apic->mime_len);
-  memcpy(apic->description, frame->data + 3 + apic->mime_len, apic->description_len);
+  memcpy(apic->mime, frame->data + 1, apic->mime_len + 1);
+  memcpy(apic->description, frame->data + 3 + apic->mime_len, apic->description_len + 1);
   memcpy(apic->img_data, frame->data + 4 + apic->mime_len + apic->img_data_len, apic->img_data_len);
   return true;
 }
@@ -143,10 +143,10 @@ b8 apic_write(struct frame *frame, const struct apic *apic)
   }
   u32 pos = 0;
   frame->data[pos++] = (u8)apic->txtenc;
-  memcpy(frame->data + pos, apic->mime, apic->mime_len);
+  memcpy(frame->data + pos, apic->mime, apic->mime_len + 1);
   pos += apic->mime_len + 1;
   frame->data[pos++] = (u8)apic->type;
-  memcpy(frame->data + pos, apic->description, apic->description_len);
+  memcpy(frame->data + pos, apic->description, apic->description_len + 1);
   pos += apic->description_len;
   memcpy(frame->data + pos, apic->img_data, apic->img_data_len);
   return true;

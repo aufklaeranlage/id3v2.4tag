@@ -31,7 +31,7 @@ b8 aenc_cpy(struct aenc *dest, const struct aenc *src)
   dest->length = src->length;
   dest->info_len = src->info_len;
   memcpy(dest->owner, src->owner, dest->owner_len + 1);
-  memcpy(dest->info, src->info, dest->info_len + 1);
+  memcpy(dest->info, src->info, dest->info_len);
   return true;
 }
 

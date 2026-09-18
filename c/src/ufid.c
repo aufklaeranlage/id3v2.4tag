@@ -62,11 +62,7 @@ b8 ufid_read(struct ufid *ufid, const struct frame *frame)
   u32 pos = 0;
   ufid->owner_id_len = strlen(frame->data + pos);
   pos += ufid->owner_id_len + 1;
-  if (frame->size < pos) {
-    ufid_clear(ufid);
-    return false;
-  }
-  if (frame->size - pos > 64) {
+  if (frame->size < pos + 64) {
     ufid_clear(ufid);
     return false;
   }
@@ -92,7 +88,7 @@ b8 ufid_write(struct frame *frame, const struct ufid *ufid)
     return false;
   }
   u32 pos = 0;
-  memcpy(frame->data + pos, ufid->owner_id, ufid->owner_id_len);
+  memcpy(frame->data + pos, ufid->owner_id, ufid->owner_id_len + 1);
   pos += ufid->owner_id_len + 1;
   memcpy(frame->data + pos, ufid->id, ufid->id_len);
   return true;

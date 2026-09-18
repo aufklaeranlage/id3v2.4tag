@@ -18,8 +18,8 @@ struct geob {
   u32           mime_len;
   char          *filename;
   u32           filename_len;
-  char          *description;
-  u32           description_len;
+  char          *desc;
+  u32           desc_len;
   char          *object;
   u32           object_len;
 };
