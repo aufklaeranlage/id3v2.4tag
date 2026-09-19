@@ -18,11 +18,11 @@ struct header {
     u32 minor;
   } version;
   struct {
-    b8  unsynchronisation;
-    b8  extended;
-    b8  experimental;
-    b8  footer;
-    b8  uncleared;
+    b8  unsynchronisation : 1;
+    b8  extended : 1;
+    b8  experimental : 1;
+    b8  footer : 1;
+    b8  uncleared : 1;
   } flags;
   u32 size;
   u32 pos;
@@ -70,7 +70,7 @@ void          header_del(struct header *f);
 /** @brief Reads the data from `stream` into the `struct frame *f`.
  *  @return Returns `true` on successfull read; `false` on failure to read a frame
  */
-b8            header_read(FILE *stream, struct header *h);
+b8            header_read(struct header *h, FILE *stream);
 
 /** @brief Updates a `struct header`s internal fields to reflect changes
  *    made by the user.

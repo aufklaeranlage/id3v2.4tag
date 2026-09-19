@@ -91,7 +91,7 @@ b8 file_read(struct file *f, const char *filename)
     return false;
 
 
-  if (!header_read(stream, &f->header)) {
+  if (!header_read(&f->header, stream)) {
     /* TODO outsource ?? */
     i32 offset = -50;
     char buf[50];
@@ -109,7 +109,7 @@ b8 file_read(struct file *f, const char *filename)
       if (footer_read(stream, &f->footer)) {
         offset = f->footer.pos + 10 - f->footer.size;
         fseek(stream, offset, SEEK_END);
-        if (!header_read(stream, &f->header))
+        if (!header_read(&f->header, stream))
           return false;
       } else {
         return false;
@@ -118,7 +118,7 @@ b8 file_read(struct file *f, const char *filename)
   }
 
   if (f->header.flags.extended)
-    ext_header_read(stream, &f->ext_header);
+    ext_header_read(&f->ext_header, stream);
 
   if (f->header.state == unset && f->footer.state == unset ) {
     return true;

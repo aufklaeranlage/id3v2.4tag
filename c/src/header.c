@@ -45,7 +45,7 @@ void header_del(struct header *h)
   free(h);
 }
 
-b8 header_read(FILE *stream, struct header *h)
+b8 header_read(struct header *h, FILE *stream)
 {
   header_clear(h);
   char  buf[10];
@@ -61,11 +61,11 @@ b8 header_read(FILE *stream, struct header *h)
   h->version.major = buf[3];
   h->version.minor = buf[4];
 
-  h->flags.unsynchronisation = buf[5] & F_UNSYN;
-  h->flags.extended = buf[5] & F_EXTEN;
-  h->flags.experimental = buf[5] & F_EXPER;
-  h->flags.footer = buf[5] & F_FOOTR;
-  h->flags.uncleared = buf[5] & F_UNCLR;
+  h->flags.unsynchronisation = buf[5] & F_UNSYN ? true : false;
+  h->flags.extended = buf[5] & F_EXTEN ? true : false;
+  h->flags.experimental = buf[5] & F_EXPER ? true : false;
+  h->flags.footer = buf[5] & F_FOOTR ? true : false;
+  h->flags.uncleared = buf[5] & F_UNCLR ? true : false;
 
   h->size = read_synchsafe_u28((u8 *)buf + 6);
   h->pos = cur;
@@ -81,10 +81,10 @@ b8 header_update(struct header *h)
 
 b8 header_set_flags(struct header *h, u8 flags)
 {
-  h->flags.unsynchronisation = flags & F_UNSYN;
-  h->flags.extended = flags & F_EXTEN;
-  h->flags.experimental = flags & F_EXPER;
-  h->flags.footer = flags & F_FOOTR;
+  h->flags.unsynchronisation = flags & F_UNSYN ? true : false;
+  h->flags.extended = flags & F_EXTEN ? true : false;
+  h->flags.experimental = flags & F_EXPER ? true : false;
+  h->flags.footer = flags & F_FOOTR ? true : false;
   return true;
 }
 

@@ -70,15 +70,33 @@ UTILS_OBJS := $(patsubst %.c,%.o,   $(UTILS_SRCS))
 UTILS_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(UTILS_OBJS))
 UTILS_DEPS_EXT   := $(patsubst %.o,%.d, $(UTILS_OBJS_EXT))
 
+HEADER_EXE   := $(BIN_DIR)/header$(TARGET_EXT)
+HEADER_SRCS		:= header_test.c
+HEADER_OBJS := $(patsubst %.c,%.o,   $(HEADER_SRCS))
+HEADER_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(HEADER_OBJS))
+HEADER_DEPS_EXT   := $(patsubst %.o,%.d, $(HEADER_OBJS_EXT))
+
+EXT_HEADER_EXE   := $(BIN_DIR)/ext_header$(TARGET_EXT)
+EXT_HEADER_SRCS		:= ext_header_test.c
+EXT_HEADER_OBJS := $(patsubst %.c,%.o,   $(EXT_HEADER_SRCS))
+EXT_HEADER_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(EXT_HEADER_OBJS))
+EXT_HEADER_DEPS_EXT   := $(patsubst %.o,%.d, $(EXT_HEADER_OBJS_EXT))
+
+FOOTER_EXE   := $(BIN_DIR)/footer$(TARGET_EXT)
+FOOTER_SRCS		:= footer_test.c
+FOOTER_OBJS := $(patsubst %.c,%.o,   $(FOOTER_SRCS))
+FOOTER_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(FOOTER_OBJS))
+FOOTER_DEPS_EXT   := $(patsubst %.o,%.d, $(FOOTER_OBJS_EXT))
+
 # * RULES ******************************************************************** #
 
 .PHONY : norun clean show
 
 ifeq ($(MAKECMDGOALS),norun)
-all : frame utils
+all : frame header ext_header footer utils
 norun : all
 else
-all : frame utils run
+all : frame header ext_header footer utils run
 endif
 
 frame : id3v240.a $(FRAME_EXE)
@@ -86,12 +104,27 @@ frame : id3v240.a $(FRAME_EXE)
 $(FRAME_EXE) : $(OBJS_EXT) $(FRAME_OBJS_EXT)
 	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
 
+header : id3v240.a $(HEADER_EXE)
+
+$(HEADER_EXE) : $(OBJS_EXT) $(HEADER_OBJS_EXT)
+	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
+
+ext_header : id3v240.a $(EXT_HEADER_EXE)
+
+$(EXT_HEADER_EXE) : $(OBJS_EXT) $(EXT_HEADER_OBJS_EXT)
+	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
+
+footer : id3v240.a $(FOOTER_EXE)
+
+$(FOOTER_EXE) : $(OBJS_EXT) $(FOOTER_OBJS_EXT)
+	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
+
 utils : id3v240.a $(UTILS_EXE)
 
 $(UTILS_EXE) : $(OBJS_EXT) $(UTILS_OBJS_EXT)
 	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
 
-run : $(FRAME_EXE) $(UTILS_EXE)
+run : $(FRAME_EXE) $(HEADER_EXE) $(EXT_HEADER_EXE) $(FOOTER_EXE) $(UTILS_EXE)
 	$(foreach exe,$^,$(exe);)
 
 id3v240.a :

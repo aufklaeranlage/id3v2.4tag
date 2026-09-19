@@ -66,12 +66,12 @@ struct file *file_clear(struct file *f);
 /** @brief Frees the memory used by a `struct file` and it's internal data.
  *  @param A pointer to the `struct file` to be freed.
  */
-void          file_del(struct file *f);
+void        file_del(struct file *f);
 
 /** @brief Reads the data from `stream` into the `struct frame *f`.
  *  @return Returns `true` on successfull read; `false` on failure to read a frame
  */
-b8 file_read(struct file *h, const char *filename);
+b8          file_read(struct file *h, const char *filename);
 
 /** @brief Writes the information from `struct file *h` into the stream `stream`.
  *  @return Returns the stream.

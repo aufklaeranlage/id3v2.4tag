@@ -11,6 +11,7 @@ struct ext_header *ext_header_init(struct ext_header *eh)
     return NULL;
   memset(eh, 0, sizeof(*eh));
   eh->state = unset;
+  eh->size = 6;
   return eh;
 }
 
@@ -44,7 +45,7 @@ void ext_header_del(struct ext_header *eh)
   free(eh);
 }
 
-b8 ext_header_read(FILE *stream, struct ext_header *eh)
+b8 ext_header_read(struct ext_header *eh, FILE *stream)
 {
   char  buf[6];
   u64   cur = ftell(stream);
@@ -63,9 +64,9 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
 
   /* Ignoring number of flag bytes */
 
-  eh->flags.update = buf[5] & F_UPDATE;
-  eh->flags.crc = buf[5] & F_CRCPRES;
-  eh->flags.restriction = buf[5] & F_RESTRICT;
+  eh->flags.update = buf[5] & F_UPDATE ? true : false;
+  eh->flags.crc = buf[5] & F_CRCPRES ? true : false;
+  eh->flags.restriction = buf[5] & F_RESTRICT ? true : false;
   eh->state = bad;
 
   if (eh->size != (u32)(6 + (eh->flags.update * 1) + (eh->flags.crc * 6) + (eh->flags.restriction * 2))) {
@@ -103,12 +104,13 @@ b8 ext_header_read(FILE *stream, struct ext_header *eh)
       fseek(stream, cur, SEEK_SET);
       return false;
     }
-    eh->restriction.tag_size = flagbuf[pos] & M_RES_TAGSIZE;
-    eh->restriction.txt_encode = flagbuf[pos] & F_RES_TXTENC;
-    eh->restriction.txt_size = flagbuf[pos] & M_RES_TXTSIZE;
-    eh->restriction.img_encode = flagbuf[pos] & F_RES_IMGENC;
-    eh->restriction.img_size = flagbuf[pos] & M_RES_IMGSIZE;
+    eh->restriction.tag_size = flagbuf[pos] & M_RES_TAGSIZE ? true : false;
+    eh->restriction.txt_encode = flagbuf[pos] & F_RES_TXTENC ? true : false;
+    eh->restriction.txt_size = flagbuf[pos] & M_RES_TXTSIZE ? true : false;
+    eh->restriction.img_encode = flagbuf[pos] & F_RES_IMGENC ? true : false;
+    eh->restriction.img_size = flagbuf[pos] & M_RES_IMGSIZE ? true : false;
   }
+  eh->pos = cur;
 
   eh->state = good;
   return true;
@@ -124,34 +126,33 @@ b8 ext_header_update(struct ext_header *eh)
   return true;
 }
 
-b8 ext_header_set_update(struct ext_header *eh, b8 update)
+b8 ext_header_set_update(struct ext_header *eh, b8 set)
 {
-  if (!eh->flags.update && update)
-    eh->size += 1;
-  else if (eh->flags.update && !update)
-    eh->size -= 1;
-  eh->flags.update = update;
+  eh->size += 1 * (!(!(set)) - !(!(eh->flags.update)));
+  eh->flags.update = set ? true : false;
   return true;
 }
 
-b8 ext_header_set_crc(struct ext_header *eh, u64 crc)
+b8 ext_header_set_crc(struct ext_header *eh, b8 set, u64 val)
 {
-  if (!eh->flags.crc)
-    eh->size += 6;
-  eh->flags.crc = true;
-  eh->crc = crc;
+  eh->size += 6 * (!(!(set)) - !(!(eh->flags.crc)));
+  eh->flags.crc = set ? true : false;
+  if (!set)
+    return true;
+  eh->crc = val;
   return true;
 }
 
-b8 ext_header_set_restrictions(struct ext_header *eh, u8 flags)
+b8 ext_header_set_restrictions(struct ext_header *eh, b8 set, u8 flags)
 {
-  if (!eh->flags.restriction)
-    eh->size += 2;
-  eh->flags.restriction = true;
+  eh->size += 2 * (!(!(set)) - !(!(eh->flags.restriction)));
+  eh->flags.restriction = set ? true : false;
+  if (!set)
+    return true;
   eh->restriction.tag_size = flags & M_RES_TAGSIZE;
-  eh->restriction.txt_encode = flags & F_RES_TXTENC;
+  eh->restriction.txt_encode = flags & F_RES_TXTENC ? true : false;
   eh->restriction.txt_size = flags & M_RES_TXTSIZE;
-  eh->restriction.img_encode = flags & F_RES_IMGENC;
+  eh->restriction.img_encode = flags & F_RES_IMGENC ? true : false;
   eh->restriction.img_size = flags & M_RES_IMGSIZE;
   return true;
 }
