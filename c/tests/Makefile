@@ -2,10 +2,17 @@ ET_DIR		:= et
 
 TEST_DIR	:= .
 
-PROJ_SDIR	:= ../src
-PROJ_IDIR	:= ../inc
+PROJ_DIR	:= ..
+PROJ_IDIR	:= $(PROJ_DIR)/inc
 
-VPATH		:= $(TEST_DIR) $(PROJ_SDIR) $(ET_DIR)
+LIB_DIRS	:= $(PROJ_DIR)/build
+vpath %.a $(LIB_DIRS)
+LIB_DIRS	:= $(addprefix -L,$(LIB_DIRS))
+
+LIBS		:= id3v240.a
+LIBS		:= $(addprefix -l:,$(LIBS))
+
+VPATH		:= $(TEST_DIR) $(ET_DIR)
 
 INCLUDES	:= $(TEST_DIR) $(PROJ_IDIR) $(ET_DIR)
 INCLUDES	:= $(addprefix -I,$(INCLUDES))
@@ -16,7 +23,7 @@ SRCS			:= et.c et_host.c
 
 # * TOOLS ******************************************************************** #
 
-CC				:= cc
+CC			:= cc
 LINK			:= cc
 
 ifeq ($(OS),Windows_NT)
@@ -52,15 +59,13 @@ OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(OBJS))
 DEPS_EXT   := $(patsubst %.o,%.d, $(OBJS_EXT))
 
 FRAME_EXE   := $(BIN_DIR)/frame$(TARGET_EXT)
-FRAME_SRCS		:= frame.c utils.c
-FRAME_SRCS		+= frame_test.c
+FRAME_SRCS		:= frame_test.c
 FRAME_OBJS 		:= $(patsubst %.c,%.o,   $(FRAME_SRCS))
 FRAME_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(FRAME_OBJS))
 FRAME_DEPS_EXT   := $(patsubst %.o,%.d, $(FRAME_OBJS_EXT))
 
 UTILS_EXE   := $(BIN_DIR)/utils$(TARGET_EXT)
-UTILS_SRCS		:= utils.c
-UTILS_SRCS		+= utils_test.c
+UTILS_SRCS		:= utils_test.c
 UTILS_OBJS := $(patsubst %.c,%.o,   $(UTILS_SRCS))
 UTILS_OBJS_EXT   := $(addprefix $(BIN_DIR)/, $(UTILS_OBJS))
 UTILS_DEPS_EXT   := $(patsubst %.o,%.d, $(UTILS_OBJS_EXT))
@@ -70,24 +75,27 @@ UTILS_DEPS_EXT   := $(patsubst %.o,%.d, $(UTILS_OBJS_EXT))
 .PHONY : norun clean show
 
 ifeq ($(MAKECMDGOALS),norun)
-all : $(FRAME_EXE) $(UTILS_EXE)
+all : frame utils
 norun : all
 else
-all : $(FRAME_EXE) $(UTILS_EXE) run
+all : frame utils run
 endif
 
-frame : $(FRAME_EXE)
+frame : id3v240.a $(FRAME_EXE)
 
 $(FRAME_EXE) : $(OBJS_EXT) $(FRAME_OBJS_EXT)
-	$(LINK) $(LINKFLAGS) $(LDIRS) -o $@ $^ $(LIBS)
+	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
 
-utils : $(UTILS_EXE)
+utils : id3v240.a $(UTILS_EXE)
 
 $(UTILS_EXE) : $(OBJS_EXT) $(UTILS_OBJS_EXT)
-	$(LINK) $(LINKFLAGS) $(LDIRS) -o $@ $^ $(LIBS)
+	$(LINK) $(LINKFLAGS) $(LIB_DIRS) -o $@ $^ $(LIBS)
 
 run : $(FRAME_EXE) $(UTILS_EXE)
-	$^
+	$(foreach exe,$^,$(exe);)
+
+id3v240.a :
+	$(MAKE) -C $(PROJ_DIR)
 
 $(BIN_DIR)/%.d : %.c
 	$(CC) -MM -MT $(@:.d=.o) $(CFLAGS) $< > $@
@@ -115,12 +123,12 @@ clean :
 show :
 	@echo PROJECT		= $(PROJECT)
 	@echo TARGET_EXE	= $(TARGET_EXE)
-	@echo VPATH			= $(VPATH)
-	@echo SRCS			= $(SRCS)
+	@echo VPATH		= $(VPATH)
+	@echo SRCS		= $(SRCS)
 	@echo DEPS_EXT		= $(DEPS_EXT)
 	@echo OBJS_EXT  	= $(OBJS_EXT)
 	@echo DEPS_EXT   	= $(C_DEPS_EXT)
 	@echo LDIR  	  	= $(LIB_DIRS)
-	@echo LIBS			= $(LIBS)
+	@echo LIBS		= $(LIBS)
 	@echo DEFINES     	= $(DEFINES)
 	@echo INCLUDES		= $(INCLUDES)

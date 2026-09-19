@@ -1,5 +1,5 @@
-obj/
-*/obj/
+build/
+*/build/
 
 tagger
 */tagger

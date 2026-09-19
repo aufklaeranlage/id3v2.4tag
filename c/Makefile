@@ -1,12 +1,16 @@
 # **************************************************************************** #
 
+LIBNAME	:= id3v240.a
 NAME	:= tagger
 
 # * DIRECTORIES ************************************************************** #
 
 SDIR	:= src/
 IDIR	:= inc/
-ODIR	:= obj/
+BDIR	:= build/
+
+LIBNAME	:= $(addprefix $(BDIR), $(LIBNAME))
+NAME	:= $(addprefix $(BDIR), $(NAME))
 
 # * FILES ******************************************************************** #
 
@@ -27,51 +31,60 @@ SRCS	+= ufid.c
 SRCS	+= tif.c
 SRCS	+= txxx.c
 
-SRCS	+= main.c
+PROG_SRCS	:= $(SRCS)
+PROG_SRCS	+= main.c
 
 OBJS	:= $(SRCS:.c=.o)
-OBJS	:= $(addprefix $(ODIR), $(OBJS))
+OBJS	:= $(addprefix $(BDIR), $(OBJS))
 
-DEPS	:= $(OBJS:.o=.d)
+PROG_OBJS	:= $(PROG_SRCS:.c=.o)
+PROG_OBJS	:= $(addprefix $(BDIR), $(PROG_OBJS))
+
+
+DEPS	:= $(PROG_OBJS:.o=.d)
 
 # * COMMANDS ***************************************************************** #
 
 CC		:= gcc
 LD		:= gcc
+AR		:= ar
 RM		:= rm -rf
-MKDIR	:= mkdir -p
+MKDIR		:= mkdir -p
 
 # * FLAGS ******************************************************************** #
 
-CFLAGS		:= -Wall -Werror -Wextra -MMD -MP
-CPPFLAGS	:= -I $(IDIR)
+CFLAGS		?=
+CFLAGS		+= -Wall -Werror -Wextra -MMD -MP
+CPPFLAGS	?=
+CPPFLAGS	+= -I $(IDIR)
+ARFLAGS		:= rcs
 
 ifdef DEBUG
 	CFLAGS	+= -g3
 else
-	# CFLAGS	+= -O3
+	CFLAGS	+= -O3
 endif
 
 # * RULES ******************************************************************** #
 
-all: $(NAME)
+all: $(LIBNAME)
 
-$(NAME): $(ODIR) $(OBJS)
+$(LIBNAME): $(BDIR) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+$(NAME): $(BDIR) $(PROG_OBJS)
 	$(LD) $(LDFLAGS) -o $(NAME) $(OBJS)
 
-$(ODIR):
-	$(MKDIR) $(ODIR)
+$(BDIR):
+	$(MKDIR) $(BDIR)
 
-$(ODIR)%.o: %.c
+$(BDIR)%.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 -include $(DEPS)
 
 clean:
-	$(RM) $(ODIR)
-
-fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(BDIR)
 
 re: fclean all
 

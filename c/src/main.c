@@ -409,7 +409,7 @@ int main(int ac, char *av[])
       fprintf(stderr, "%s: error while searching for frames.\n", av[0]);
       goto  exit;
     }
-    if (memcmp(id, "TXXX", 5) == 0) {
+    if (memcmp(id, "TXXX", 4) == 0) {
       print_txxx(results);
     } else {
       for (u32 i = 0; results[i] != NULL; i++) {

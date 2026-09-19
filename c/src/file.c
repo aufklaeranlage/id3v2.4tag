@@ -97,7 +97,8 @@ b8 file_read(struct file *f, const char *filename)
     char buf[50];
     fseek(stream, offset, SEEK_END);
     while (ftell(stream) <= 0) {
-      fread(buf, sizeof(*buf), 50, stream);
+      if (fread(buf, sizeof(*buf), 50, stream) < 50)
+        return false;
       char *pos = memchr(buf, '3', 50);
       if (pos == NULL || pos -buf > 47 || pos[1] != 'D' || pos[2] != 'I') {
         offset -= 47;

@@ -72,13 +72,11 @@ b8 frame_read(struct frame *f, FILE *stream)
 
   f->state = bad;
   f->pos = cur;
-  fread(f->id, sizeof(char), 4, stream);
-  if (ferror(stream)) {
+  if (fread(f->id, sizeof(char), 4, stream) != 4 || ferror(stream)) {
     fclose(stream);
     return false;
   }
-  fread(headerbuf, sizeof(char), 6, stream);
-  if (ferror(stream))
+  if (fread(headerbuf, sizeof(char), 6, stream) != 6 || ferror(stream))
     return false;
   if (is_synchsafe_u28((u8 *)headerbuf)) {
     f->size = read_synchsafe_u28((u8 *)headerbuf);
@@ -101,8 +99,7 @@ b8 frame_read(struct frame *f, FILE *stream)
   if (f->data == NULL) {
     fseek(stream, cur, SEEK_SET);
   } else {
-    fread(f->data, sizeof(char), f->size, stream);
-    if (ferror(stream))
+    if (fread(f->data, sizeof(char), f->size, stream) != f->size || ferror(stream))
       return false;
   }
   f->data[f->size] = '\0';

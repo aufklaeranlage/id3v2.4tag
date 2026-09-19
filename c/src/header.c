@@ -52,8 +52,7 @@ b8 header_read(FILE *stream, struct header *h)
   u64   cur = ftell(stream);
 
   h->state = unset;
-  fread(buf, sizeof(u8), 10, stream);
-  if (ferror(stream) == true || strncmp(buf, "ID3", 3) != 0) {
+  if (fread(buf, sizeof(u8), 10, stream) != 10 || ferror(stream) == true || strncmp(buf, "ID3", 3) != 0) {
     fseek(stream, cur, SEEK_SET);
     return false;
   }
