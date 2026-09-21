@@ -1,12 +1,12 @@
-obj/
-*/obj/
+build/
 
-tagger
-*/tagger
+build/tagger
+build/id3v240.a
 
 compile_flags.txt
-*/compile_flags.txt
 
-c/tests/build
+tests/build
 
 *.mp3
+
+.*
